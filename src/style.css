@@ -1,0 +1,20 @@
+body{
+    background-color: #282C34;
+}
+
+h1{
+    background-color: red;
+    border: black 10px solid;
+}
+
+main{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.item{
+    width: 300px;
+    height: 50px;
+    background-color: #2C313C;
+}
