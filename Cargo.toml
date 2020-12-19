@@ -9,5 +9,13 @@ edition = "2018"
 [dependencies]
 web-view = { git = "https://github.com/Boscop/web-view", features = ["edge"] }
 nfd = { git = "https://github.com/saurvs/nfd-rs" }
-rodio = "0.11.0"
+#ez-audio = { git = "https://github.com/Kl4rry/ez-audio" }
+ez_audio = { path = "C:/Users/Axel/projects/ez-audio" }
+slab = "0.4.2"
 tokio = { version = "0.3.2", features = ["full"] }
+rdev = "0.1.0"
+
+[build-dependencies]
+base64 = "0.13.0"
+regex = "1.4.2"
+html-minifier = "3.0.8"

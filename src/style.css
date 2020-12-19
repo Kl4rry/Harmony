@@ -1,20 +1,83 @@
-body{
-    background-color: #282C34;
+*{
+    font-family: "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 }
 
-h1{
-    background-color: red;
-    border: black 10px solid;
+body{
+    background-color: #282C34;
+    color: white;
 }
 
 main{
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: start;
+    align-items: flex-start;
+    align-content: flex-start;
+    height: calc(100vh - 100px - 20px);
+    padding-right: 10px;
+    overflow: auto;
+}
+
+nav{
+    width: 100vw;
+    height: 20px;
+    background-color:#3e4147;
+}
+
+nav button{
+    height: 100%;
+}
+
+#bottom{
+    background-color: #21252B;
+    height: 100px;
 }
 
 .item{
-    width: 300px;
     height: 50px;
     background-color: #2C313C;
+    display: flex;
+    align-items: center;
+    max-width: 500px;
+    width: 400px;
+    flex-grow: 1;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+
+.item-button{
+    height: 16px;
+    width: 16px;
+    padding: 5px;
+    padding-left: 7px;
+    padding-right: 3px;
+    border-radius: 50%;
+    border: solid white 1px;
+    transition: 0.2s;
+}
+
+.item-button:hover{
+    border: solid white 2px;
+}
+
+.button-container{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+}
+
+.name{
+    width: calc(100% - 140px);
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.duration{
+    width: 50px;
+    text-align: right;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
 }

@@ -8,14 +8,25 @@
         <style>
             {css}
         </style>
-        <link rel="stylesheet" href="normalize.css">
     </head>
 
     <body>
-        <button onclick="browse()">Browse</button>
+        <nav>
+            <button onclick="browse()">Browse</button>
+        </nav>
+        
         <main id="main">
             
         </main>
+
+        <div id="bottom">
+            <select id="primary-devicelist" onchange="select_primary(this.selectedIndex)">
+            </select>
+
+            <select id="secondary-devicelist" onchange="select_secondary(this.selectedIndex)">
+            </select>
+        </div>
+        
         <script>
             {js}
         </script>
