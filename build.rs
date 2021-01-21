@@ -24,7 +24,6 @@ fn main() {
     html_content = html_content.replace("{js}", js);
 
     let captures = resource_regex.captures_iter(&html_content);
-
     let mut html = html_content.clone();
 
     for cap in captures {
@@ -39,7 +38,7 @@ fn main() {
         let data = format!("{}{}", prefix, b64);
         html = html_content.replace(&cap.get(0).unwrap().as_str(), &data);
     }
-
+    
     let dest_path = Path::new(&out_dir).join("html_content.html");
     fs::write(&dest_path, html).unwrap();
 }

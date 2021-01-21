@@ -1,13 +1,13 @@
-*{
+* {
     font-family: "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 }
 
-body{
+body {
     background-color: #282C34;
     color: white;
 }
 
-main{
+main {
     display: flex;
     flex-wrap: wrap;
     justify-content: start;
@@ -18,22 +18,22 @@ main{
     overflow: auto;
 }
 
-nav{
+nav {
     width: 100vw;
     height: 20px;
     background-color:#3e4147;
 }
 
-nav button{
+nav button {
     height: 100%;
 }
 
-#bottom{
+#bottom {
     background-color: #21252B;
     height: 100px;
 }
 
-.item{
+.item {
     height: 50px;
     background-color: #2C313C;
     display: flex;
@@ -45,7 +45,7 @@ nav button{
     margin-left: 10px;
 }
 
-.item-button{
+.item-button {
     height: 16px;
     width: 16px;
     padding: 5px;
@@ -56,28 +56,34 @@ nav button{
     transition: 0.2s;
 }
 
-.item-button:hover{
+.item-button:hover {
     border: solid white 2px;
 }
 
-.button-container{
+.button-container {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 40px;
 }
 
-.name{
+.name {
     width: calc(100% - 140px);
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
 }
 
-.duration{
+.duration {
     width: 50px;
     text-align: right;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
+}
+
+.play-icon {
+    background-image: url("{images:play.svg}");
+    height: 100%;
+    width: 100%;
 }

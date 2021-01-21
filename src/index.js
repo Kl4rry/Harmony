@@ -24,8 +24,8 @@ function new_sound(id, name){
 
 function init_sound(id, name, duration){
     let div = document.getElementById(id);
-    let play = `<div class="button-container"><div class="item-button" onclick="play(this)"><img src="{images:play.svg}"/></div></div>`
-    let restart = `<div class="button-container"><div class="item-button" onclick="restart(this)"><img src="{images:play.svg}"/></div></div>`
+    let play = `<div class="button-container"><div class="item-button" onclick="play(this)"><div class="play-icon"></div></div></div>`
+    let restart = `<div class="button-container"><div class="item-button" onclick="restart(this)"><div class="play-icon"></div></div></div>`
     div.innerHTML = `${play}${restart}<p class="name">${name}</p><p class="duration">${duration}</p>`;
 }
 
