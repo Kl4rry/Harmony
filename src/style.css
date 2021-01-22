@@ -49,8 +49,6 @@ nav button {
     height: 16px;
     width: 16px;
     padding: 5px;
-    padding-left: 7px;
-    padding-right: 3px;
     border-radius: 50%;
     border: solid white 1px;
     transition: 0.2s;
@@ -84,6 +82,18 @@ nav button {
 
 .play-icon {
     background-image: url("{images:play.svg}");
+    background-repeat: no-repeat;
+    background-position: center center;
+    height: 100%;
+    width: 100%;
+    margin-left: 2px;
+}
+
+.pause-icon {
+    background-image: url("{images:pause.svg}");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 70%;
     height: 100%;
     width: 100%;
 }

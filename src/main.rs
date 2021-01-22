@@ -33,6 +33,10 @@ impl Player {
         self.clips.read().unwrap()[&id].restart();
     }
 
+    fn stop(&self, id: usize) {
+        self.clips.read().unwrap()[&id].stop();
+    }
+
     fn load_sound(
         &mut self,
         str_path: &str,
@@ -62,12 +66,19 @@ impl Player {
             if res.is_ok() {
                 let clips = self.clips.clone();
                 tokio::spawn(async move {
+                    let local_handle = handle.clone();
                     let devices = devices.read().unwrap();
                     let result = AudioClip::new(
                         path,
                         context.clone(),
                         (&devices[device_indexes.0], &devices[device_indexes.1]),
                         id,
+                        move |userdata| {
+                            let data = userdata.clone();
+                            local_handle.dispatch(move |webview| {
+                                webview.eval(&format!(r#"set_icon({}, "play-icon")"#, data))
+                            });
+                        }
                     );
                     if let Ok(clip) = result {
                         let duration = clip.duration();
@@ -101,6 +112,10 @@ impl Player {
         for clip in self.clips.read().unwrap().iter() {
             clip.1.set_secondary_device(device);
         }
+    }
+
+    fn is_playing(&self, id: usize) -> bool {
+        self.clips.read().unwrap()[&id].is_playing()
     }
 }
 
@@ -171,9 +186,15 @@ async fn main() {
                         browsing.store(false, Ordering::Relaxed);
                     }
                 }
-                "play" => {
+                "play_pause" => {
                     let index: usize = args[1].parse().unwrap();
-                    player.play(index);
+                    if player.is_playing(index) {
+                        player.stop(index);
+                        webview.eval(&format!(r#"set_icon({}, "play-icon")"#, index));
+                    } else {
+                        player.play(index);
+                        webview.eval(&format!(r#"set_icon({}, "pause-icon")"#, index));
+                    }
                 }
                 "restart" => {
                     let index: usize = args[1].parse().unwrap();

@@ -7,32 +7,31 @@ use std::time::Duration;
 pub struct AudioClip {
     handles: (AudioHandle<usize>, AudioHandle<usize>),
     duration: Duration,
-    playing: bool,
 }
 
 impl AudioClip {
-    pub fn new(
+    pub fn new<F: 'static + FnMut(&mut usize) + Send + Clone>(
         path: PathBuf,
         context: Context,
         devices: (&Device, &Device),
         id: usize,
+        closure: F,
     ) -> Result<Self, AudioError> {
-        let handle1 = AudioLoader::new(&path, context.clone())
-        .device(devices.0)
-        .user_data(id)
-        .on_end(|userdata| println!("{}", userdata))
-        .load()?;
-
-        let handle2 = AudioLoader::new(&path, context.clone())
-        .device(devices.1)
-        .user_data(id)
-        .on_end(|userdata| println!("{}", userdata))
-        .load()?;
-
+        let handles = (
+            AudioLoader::new(&path, context.clone())
+                .device(devices.0)
+                .user_data(id)
+                .on_end(closure.clone())
+                .load()?,
+            AudioLoader::new(&path, context.clone())
+                .device(devices.1)
+                .user_data(id)
+                .on_end(closure)
+                .load()?
+        );
         Ok(AudioClip {
-            handles: (handle1, handle2),
+            handles,
             duration: get_duration(&path),
-            playing: false,
         })
     }
 
