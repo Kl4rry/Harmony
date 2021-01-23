@@ -150,7 +150,7 @@ async fn main() {
 
     let browsing = AtomicBool::new(false);
 
-    let mut devices: Arc<RwLock<Vec<Device>>> =
+    let devices: Arc<RwLock<Vec<Device>>> =
         Arc::new(RwLock::new(vec![default_output_device(context.clone())]));
 
     let mut temp: Vec<Device> = output_devices(context.clone()).collect();
@@ -167,6 +167,8 @@ async fn main() {
         .user_data(())
         .invoke_handler(|webview, arg| {
             let args: Vec<&str> = arg.split_whitespace().collect();
+            
+            #[allow(unused_must_use)]
             match args[0] {
                 "browse" => {
                     if !browsing.swap(true, Ordering::Relaxed) {
@@ -216,14 +218,12 @@ async fn main() {
                 }
                 "select_primary" => {
                     let index: usize = args[1].parse().unwrap();
-                    println!("{}", index);
                     let devices = &*devices.read().unwrap();
                     player.set_primary_device(&devices[index]);
                     primary_device_index = index;
                 }
                 "select_secondary" => {
                     let index: usize = args[1].parse().unwrap();
-                    println!("{}", index);
                     let devices = &*devices.read().unwrap();
                     player.set_secondary_device(&devices[index]);
                     secondary_device_index = index;

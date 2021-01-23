@@ -1,4 +1,4 @@
-use base64::{decode, encode};
+use base64::{encode};
 use regex::Regex;
 use std::collections::HashMap;
 use std::env;

@@ -31,6 +31,48 @@ nav button {
 #bottom {
     background-color: #21252B;
     height: 100px;
+    display: flex;
+    justify-content: right;
+}
+
+#device-select {
+    height: 100%;
+    background: grey;
+}
+
+#volume-select {
+    height: 100%;
+    background-color: red;
+}
+
+.slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100px;
+    height: 25px;
+    background: #d3d3d3;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none; /* Override default look */
+    appearance: none;
+    width: 25px; /* Set a specific slider handle width */
+    height: 25px; /* Slider handle height */
+    background: #4CAF50; /* Green background */
+    cursor: pointer; /* Cursor on hover */
+}
+
+.slider:hover {
+    opacity: 1;
+}
+
+select {
+    display: block;
+    width: 300px;
 }
 
 .item {

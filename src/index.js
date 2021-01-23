@@ -1,6 +1,16 @@
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
-}  
+}
+
+function drop(ev) {
+    ev.preventDefault();
+    //var data = ev.dataTransfer.getData("text");
+    //ev.target.appendChild(document.getElementById(data));
+}
+
+function drag(ev) {
+    ev.dataTransfer.setData("item", ev.target.id);
+}
 
 function browse() {
     external.invoke("browse");
@@ -27,6 +37,9 @@ function init_sound(id, name, duration) {
     let play = `<div class="button-container"><div class="item-button" onclick="play_pause(this)"><div id="play" class="play-icon"></div></div></div>`
     let restart = `<div class="button-container"><div class="item-button" onclick="restart(this)"><div class="play-icon"></div></div></div>`
     div.innerHTML = `${play}${restart}<p class="name">${name}</p><p class="duration">${duration}</p>`;
+    div.setAttribute("ondragstart", "drag(event)");
+    div.setAttribute("draggable", "true");
+    div.setAttribute("ondragover", "allowDrop(event)")
 }
 
 function set_icon(id, icon) {
@@ -48,7 +61,6 @@ function set_device_list(list) {
     let inner = "";
     for(let i = 0; i<list.length; ++i){
         inner += `<option value=${i}>${list[i]}</option>`;
-        external.invoke(list[i]);
     }
     document.getElementById("primary-devicelist").innerHTML = inner;
     document.getElementById("secondary-devicelist").innerHTML = inner;
