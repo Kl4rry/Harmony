@@ -105,7 +105,6 @@ async fn main() {
                     player.set_volume(volume_primary, volume_secondary);
                 }
                 _ => println!("{}", arg),
-                //_ => unimplemented!(),
             }
             Ok(())
         })

@@ -78,8 +78,8 @@ function update_device_list() {
     external.invoke("update_device_list");
 }
 
-let primary_volume = 0;
-let secondary_volume = 0;
+let primary_volume = 0.5;
+let secondary_volume = 0.5;
 
 function set_primary_volume(volume) {
     secondary_volume = volume;
