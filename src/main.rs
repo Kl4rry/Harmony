@@ -117,6 +117,12 @@ impl Player {
     fn is_playing(&self, id: usize) -> bool {
         self.clips.read().unwrap()[&id].is_playing()
     }
+
+    fn set_volume(&self, volume_primary: f32, volume_secondary: f32) {
+        for clip in self.clips.read().unwrap().iter() {
+            clip.1.set_volume(volume_primary, volume_secondary);
+        }
+    }
 }
 
 fn duration_to_string(duration: Duration) -> String {
@@ -227,6 +233,11 @@ async fn main() {
                     let devices = &*devices.read().unwrap();
                     player.set_secondary_device(&devices[index]);
                     secondary_device_index = index;
+                }
+                "set_volume" => {
+                    let volume_primary: f32 = args[1].parse().unwrap();
+                    let volume_secondary: f32 = args[2].parse().unwrap();
+                    player.set_volume(volume_primary, volume_secondary);
                 }
                 _ => println!("{}", arg),
                 //_ => unimplemented!(),

@@ -27,8 +27,8 @@
                 </select>
             </div>
             <div id="volume-select">
-                <input type="range" min="0" max="100" value="50" class="slider">
-                <input type="range" min="0" max="100" value="50" class="slider">
+                <input onchange="set_primary_volume(this.value)" id="primary-slider" type="range" min="0" max="1" value="0.5" step="0.01" class="slider">
+                <input onchange="set_secondary_volume(this.value)" id="secondary-slider" type="range" min="0" max="1" value="0.5" step="0.01" class="slider">
             </div>
         </div>
         
