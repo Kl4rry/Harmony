@@ -33,48 +33,64 @@ nav button {
     height: 100px;
     display: flex;
     justify-content: right;
+    flex-direction: row-reverse;
 }
 
 #device-select {
     height: 100%;
-    background: grey;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
 }
 
 #volume-select {
     height: 100%;
-    background-color: red;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
 }
 
 .slider {
     -webkit-appearance: none;
-    appearance: none;
-    width: 100px;
-    height: 25px;
-    background: #d3d3d3;
+    width: 200px;
+    height: 26px;
+    background: transparent;
     outline: none;
-    opacity: 0.7;
-    -webkit-transition: .2s;
-    transition: opacity .2s;
+    margin: 0px 20px;
 }
 
+.slider::-ms-track {
+    background-color: lightgray;
+    height: 5px;
+    width: 100%;
+    border-radius: 5px;
+    border: none;
+    border-color: transparent;
+    border-width: 10px 0;
+}
+  
 .slider::-webkit-slider-thumb {
-    -webkit-appearance: none; /* Override default look */
+    -webkit-appearance: none;
     appearance: none;
-    width: 25px; /* Set a specific slider handle width */
-    height: 25px; /* Slider handle height */
-    background: #4CAF50; /* Green background */
-    cursor: pointer; /* Cursor on hover */
+    width: 16px;
+    height: 16px;
+    border-radius: 50%; 
+    background-color: #00ACF8;
+    cursor: pointer;
 }
 
-.slider:hover {
-    opacity: 1;
+.slider::-ms-fill-lower {
+    background-color: #00ACF8;
+    border-radius: 6px;
 }
 
 select {
     display: block;
     width: 300px;
+    margin: 0px 20px;
 }
 
+/* sound item styling */
 .item {
     height: 50px;
     background-color: #2C313C;

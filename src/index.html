@@ -20,15 +20,15 @@
         </main>
 
         <div id="bottom">
-            <div id="volume-select">
-                <input type="range" min="0" max="100" value="50" class="slider">
-                <input type="range" min="0" max="100" value="50" class="slider">
-            </div>
-            <div>
+            <div id="device-select">
                 <select id="primary-devicelist" onchange="select_primary(this.selectedIndex)">
                 </select>
                 <select id="secondary-devicelist" onchange="select_secondary(this.selectedIndex)">
                 </select>
+            </div>
+            <div id="volume-select">
+                <input type="range" min="0" max="100" value="50" class="slider">
+                <input type="range" min="0" max="100" value="50" class="slider">
             </div>
         </div>
         

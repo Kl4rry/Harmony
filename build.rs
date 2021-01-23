@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use std::env;
 use std::fs;
 use std::path::{Path, PathBuf};
+use winres;
 
 fn main() {
     let out_dir = env::var_os("OUT_DIR").unwrap();
@@ -42,4 +43,10 @@ fn main() {
     
     let dest_path = Path::new(&out_dir).join("html_content.html");
     fs::write(&dest_path, html_content).unwrap();
+
+    if cfg!(target_os = "windows") {
+        let mut res = winres::WindowsResource::new();
+        res.set_icon("icon.ico");
+        res.compile().unwrap();
+    }
 }
