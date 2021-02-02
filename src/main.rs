@@ -1,3 +1,4 @@
+use directories::*;
 use ez_audio::*;
 use nfd::Response;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -7,6 +8,8 @@ use web_view::*;
 mod audio_clip;
 mod player;
 use player::*;
+mod serialization;
+use serialization::*;
 
 #[tokio::main]
 async fn main() {
@@ -38,7 +41,7 @@ async fn main() {
         .user_data(())
         .invoke_handler(|webview, arg| {
             let args: Vec<&str> = arg.split_whitespace().collect();
-            
+
             #[allow(unused_must_use)]
             match args[0] {
                 "browse" => {
@@ -110,6 +113,19 @@ async fn main() {
         })
         .build()
         .unwrap();
-    
-        let _ = window.run();
+
+    tokio::spawn(async move {
+        if let Some(user_dirs) = UserDirs::new() {
+            let mut path = user_dirs.document_dir().unwrap().to_path_buf();
+            path.push("config.ron");
+            let de = Deserializer::load(&path);
+            for clip in de.config.clips.iter() {
+
+            }
+            let mut ser = Serializer::new(&path, (0.0, 0.0), (0, 0));
+            ser.save();
+        }
+    });
+
+    let _ = window.run();
 }

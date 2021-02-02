@@ -3,7 +3,7 @@
 }
 
 body {
-    background-color: #282C34;
+    background-color:#06090F;
     color: white;
 }
 
@@ -29,7 +29,7 @@ nav button {
 }
 
 #bottom {
-    background-color: #21252B;
+    background-color:#161B22;
     height: 100px;
     display: flex;
     justify-content: right;
@@ -93,7 +93,10 @@ select {
 /* sound item styling */
 .item {
     height: 50px;
-    background-color: #2C313C;
+    border-top: #30363D solid 1px;
+    border-bottom: #30363D solid 1px;
+    border: #30363D solid 1px;
+    background-color:#0D1117;
     display: flex;
     align-items: center;
     max-width: 500px;
@@ -101,6 +104,7 @@ select {
     flex-grow: 1;
     margin-top: 10px;
     margin-left: 10px;
+    border-radius: 7px;
 }
 
 .item-button {
@@ -154,4 +158,8 @@ select {
     background-size: 70%;
     height: 100%;
     width: 100%;
+}
+
+#target {
+    background-color: #191f27;
 }

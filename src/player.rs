@@ -75,7 +75,7 @@ impl Player {
                             local_handle.dispatch(move |webview| {
                                 webview.eval(&format!(r#"set_icon({}, "play-icon")"#, data))
                             });
-                        }
+                        },
                     );
                     if let Ok(clip) = result {
                         let duration = clip.duration();

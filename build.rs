@@ -1,4 +1,4 @@
-use base64::{encode};
+use base64::encode;
 use regex::Regex;
 use std::collections::HashMap;
 use std::env;
@@ -37,10 +37,10 @@ fn main() {
         let prefix = prefixes.get(&cap[3]).unwrap_or(&"");
 
         let data = format!("{}{}", prefix, b64);
-        
+
         html_content = html_content.replace(&cap.get(0).unwrap().as_str(), &data);
     }
-    
+
     let dest_path = Path::new(&out_dir).join("html_content.html");
     fs::write(&dest_path, html_content).unwrap();
 

@@ -4,12 +4,33 @@ function sleep(ms) {
 
 function drop(ev) {
     ev.preventDefault();
-    //var data = ev.dataTransfer.getData("text");
-    //ev.target.appendChild(document.getElementById(data));
+    external.invoke(ev.target.innerHTML);
+    external.invoke("data: " + ev.dataTransfer.getData("item"));
 }
 
 function drag(ev) {
-    ev.dataTransfer.setData("item", ev.target.id);
+    ev.dataTransfer.setData("item", ev.target);
+    external.invoke("drag");
+}
+
+async function dragover(ev) {
+    let target = ev.target;
+    while(target.className != "item") {
+        let target = target.parentNode;
+    }
+    ev.preventDefault();
+    ev.target.id = "target";
+}
+
+function leave(ev) {
+    external.invoke("leave");
+    if(ev.target.id == "target") {
+        ev.target.id = "";
+    }
+}
+
+function enter(ev) {
+    external.invoke("enter");
 }
 
 function browse() {
@@ -36,10 +57,14 @@ function init_sound(id, name, duration) {
     let div = document.getElementById(id);
     let play = `<div class="button-container"><div class="item-button" onclick="play_pause(this)"><div id="play" class="play-icon"></div></div></div>`
     let restart = `<div class="button-container"><div class="item-button" onclick="restart(this)"><div class="play-icon"></div></div></div>`
-    div.innerHTML = `${play}${restart}<p class="name">${name}</p><p class="duration">${duration}</p>`;
     div.setAttribute("ondragstart", "drag(event)");
+    div.setAttribute("ondragover", "dragover(event)");
+    div.setAttribute("ondrop", "drop(event)");
+    div.setAttribute("ondragleave", "leave(event)");
+    div.setAttribute("dragenter", "enter(event)");
     div.setAttribute("draggable", "true");
-    div.setAttribute("ondragover", "allowDrop(event)")
+    div.innerHTML = `${play}${restart}<p class="name">${name}</p><p class="duration">${duration}</p>`;
+    
 }
 
 function set_icon(id, icon) {

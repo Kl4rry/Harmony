@@ -27,7 +27,7 @@ impl AudioClip {
                 .device(devices.1)
                 .user_data(id)
                 .on_end(closure)
-                .load()?
+                .load()?,
         );
         Ok(AudioClip {
             handles,
