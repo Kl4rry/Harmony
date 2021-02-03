@@ -1,6 +1,5 @@
 use ez_audio::*;
 use std::path::Path;
-use std::path::PathBuf;
 use std::process::Command;
 use std::time::Duration;
 
@@ -10,15 +9,15 @@ pub struct AudioClip {
 }
 
 impl AudioClip {
-    pub fn new<F: 'static + FnMut(&mut usize) + Send + Clone>(
-        path: PathBuf,
+    pub fn new<F: 'static + FnMut(&mut usize) + Send + Clone, P: AsRef<Path>>(
+        path: P,
         context: Context,
         devices: (&Device, &Device),
         id: usize,
         closure: F,
     ) -> Result<Self, AudioError> {
         let handles = (
-            AudioLoader::new(&path, context.clone())
+            AudioLoader::new(path.as_ref(), context.clone())
                 .device(devices.0)
                 .user_data(id)
                 .on_end(closure.clone())
@@ -31,7 +30,7 @@ impl AudioClip {
         );
         Ok(AudioClip {
             handles,
-            duration: get_duration(&path),
+            duration: get_duration(path.as_ref()),
         })
     }
 
@@ -77,16 +76,18 @@ impl AudioClip {
 }
 
 fn get_duration(path: &Path) -> Duration {
-    let output = Command::new("powershell")
+    let result = Command::new("powershell")
             .args(&["/C", &format!("ffprobe.exe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 \"{}\"", path.display())])
-            .output()
-            .expect("failed to execute process");
+            .output();
 
-    if let Ok(string) = std::str::from_utf8(&output.stdout) {
-        let result: Result<f64, std::num::ParseFloatError> = string.trim_end().parse();
-        if let Ok(seconds) = result {
-            return Duration::from_millis((seconds * 1000f64) as u64);
+    if let Ok(output) = result {
+        if let Ok(string) = std::str::from_utf8(&output.stdout) {
+            let result: Result<f64, std::num::ParseFloatError> = string.trim_end().parse();
+            if let Ok(seconds) = result {
+                return Duration::from_millis((seconds * 1000f64) as u64);
+            }
         }
     }
+    
     Duration::from_secs(0)
 }

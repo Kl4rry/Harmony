@@ -2,12 +2,12 @@ use serde::ser::SerializeSeq;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs::*;
-use std::io::{BufWriter, Write};
-use std::path::Path;
+use std::io::{Seek, SeekFrom, Write};
+use std::path::{Path, PathBuf};
 
 #[derive(Serialize, Deserialize)]
 pub struct AudioClipData {
-    pub path: String,
+    pub path: PathBuf,
     pub name: String,
 }
 
@@ -15,11 +15,11 @@ pub struct AudioClipData {
 pub struct Config<T> {
     pub clips: T,
     pub volume: (f32, f32),
-    pub device: (u32, u32),
+    pub device: (usize, usize),
 }
 
 pub struct Clips {
-    clips: HashMap<usize, AudioClipData>,
+    pub inner: HashMap<usize, AudioClipData>,
 }
 
 impl Serialize for Clips {
@@ -27,7 +27,7 @@ impl Serialize for Clips {
     where
         S: serde::ser::Serializer,
     {
-        let iter = self.clips.iter();
+        let iter = self.inner.iter();
         let mut seq = serializer.serialize_seq(Some(iter.len()))?;
         for tuple in iter {
             seq.serialize_element(tuple.1)?;
@@ -37,31 +37,35 @@ impl Serialize for Clips {
 }
 
 pub struct Serializer {
-    pub writer: BufWriter<File>,
+    file: File,
     pub config: Config<Clips>,
 }
 
 impl Serializer {
-    pub fn new<P: AsRef<Path>>(path: P, volume: (f32, f32), device: (u32, u32)) -> Serializer {
+    pub fn new<P: AsRef<Path>>(path: P, volume: (f32, f32), device: (usize, usize)) -> Serializer {
         let file = OpenOptions::new()
             .write(true)
             .create(true)
             .open(path)
             .expect("unable to create/open config file");
         Serializer {
-            writer: BufWriter::new(file),
+            file: file,
             config: Config {
                 clips: Clips {
-                    clips: HashMap::new(),
+                    inner: HashMap::new(),
                 },
                 volume,
                 device,
-            }
+            },
         }
     }
 
     pub fn save(&mut self) {
-        self.writer
+        self.file.set_len(0).expect("unable to clear file");
+        self.file
+            .seek(SeekFrom::Start(0))
+            .expect("unable to clear file");
+        self.file
             .write(&ron::ser::to_string(&self.config).unwrap().as_bytes())
             .unwrap();
     }
@@ -76,9 +80,7 @@ impl Deserializer {
         let result = read_to_string(path);
         if let Ok(string) = result {
             if let Ok(config) = ron::de::from_str(&string) {
-                return Deserializer {
-                    config
-                }
+                return Deserializer { config };
             }
         }
         Deserializer {
@@ -86,7 +88,7 @@ impl Deserializer {
                 clips: Vec::new(),
                 volume: (0.5, 0.5),
                 device: (0, 0),
-            }
+            },
         }
     }
 }

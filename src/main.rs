@@ -2,7 +2,7 @@ use directories::*;
 use ez_audio::*;
 use nfd::Response;
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::{Arc, RwLock};
+use std::sync::{Arc, Mutex, RwLock};
 use web_view::*;
 
 mod audio_clip;
@@ -32,13 +32,15 @@ async fn main() {
     let mut primary_device_index: usize = 0;
     let mut secondary_device_index: usize = 0;
 
+    let ser: Option<Arc<Mutex<Serializer>>> = None;
+
     let window = WebViewBuilder::new()
         .title("Soundboard")
         .content(Content::Html(html_content))
         .size(1280, 720)
         .min_size(640, 360)
         .resizable(true)
-        .user_data(())
+        .user_data(ser)
         .invoke_handler(|webview, arg| {
             let args: Vec<&str> = arg.split_whitespace().collect();
 
@@ -95,17 +97,69 @@ async fn main() {
                     let devices = &*devices.read().unwrap();
                     player.set_primary_device(&devices[index]);
                     primary_device_index = index;
+
+                    let mut lock = webview.user_data().as_ref().unwrap().lock().unwrap();
+                    lock.config.device.0 = index;
+                    lock.save();
                 }
                 "select_secondary" => {
                     let index: usize = args[1].parse().unwrap();
                     let devices = &*devices.read().unwrap();
                     player.set_secondary_device(&devices[index]);
                     secondary_device_index = index;
+
+                    let mut lock = webview.user_data().as_ref().unwrap().lock().unwrap();
+                    lock.config.device.1 = index;
+                    lock.save();
                 }
                 "set_volume" => {
                     let volume_primary: f32 = args[1].parse().unwrap();
                     let volume_secondary: f32 = args[2].parse().unwrap();
                     player.set_volume(volume_primary, volume_secondary);
+
+                    let mut lock = webview.user_data().as_ref().unwrap().lock().unwrap();
+                    lock.config.volume = (volume_primary, volume_secondary);
+                    lock.save();
+                }
+                "ready" => {
+                    let user_dirs = UserDirs::new().expect("unable to find user directory");
+                    let mut path = user_dirs
+                        .document_dir()
+                        .expect("unable to find document directory")
+                        .to_path_buf();
+                    path.push("config.ron");
+                    let de = Deserializer::load(&path);
+                    *webview.user_data_mut() = Some(Arc::new(Mutex::new(Serializer::new(
+                        &path,
+                        de.config.volume,
+                        de.config.device,
+                    ))));
+                    webview.eval(&format!(
+                        "update_volume({},{});",
+                        de.config.volume.0, de.config.volume.1
+                    ));
+                    webview.eval(&format!(
+                        "update_device({},{});",
+                        de.config.device.0, de.config.device.1
+                    ));
+
+                    {
+                        let devices = &*devices.read().unwrap();
+                        player.set_primary_device(&devices[de.config.device.0]);
+                        primary_device_index = de.config.device.0;
+                        player.set_secondary_device(&devices[de.config.device.1]);
+                        secondary_device_index = de.config.device.1;
+                    }
+
+                    for clip in de.config.clips.iter() {
+                        player.load_sound(
+                            &clip.path,
+                            webview.handle(),
+                            context.clone(),
+                            devices.clone(),
+                            (primary_device_index, secondary_device_index),
+                        );
+                    }
                 }
                 _ => println!("{}", arg),
             }
@@ -113,19 +167,6 @@ async fn main() {
         })
         .build()
         .unwrap();
-
-    tokio::spawn(async move {
-        if let Some(user_dirs) = UserDirs::new() {
-            let mut path = user_dirs.document_dir().unwrap().to_path_buf();
-            path.push("config.ron");
-            let de = Deserializer::load(&path);
-            for clip in de.config.clips.iter() {
-
-            }
-            let mut ser = Serializer::new(&path, (0.0, 0.0), (0, 0));
-            ser.save();
-        }
-    });
 
     let _ = window.run();
 }

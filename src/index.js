@@ -116,4 +116,17 @@ function set_secondary_volume(volume) {
     external.invoke(`set_volume ${primary_volume} ${secondary_volume}`);
 }
 
+function update_volume(primary, secondary) {
+    document.getElementById("primary-slider").value = primary;
+    primary_volume = primary;
+    document.getElementById("secondary-slider").value = secondary;
+    secondary_volume = secondary;
+}
+
+function update_device(primary, secondary) {
+    document.getElementById("primary-devicelist").value = primary;
+    document.getElementById("secondary-devicelist").value = secondary;
+}
+
 update_device_list();
+external.invoke("ready");

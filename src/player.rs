@@ -1,11 +1,12 @@
 use ez_audio::*;
 use std::collections::HashMap;
-use std::path::PathBuf;
-use std::sync::{Arc, RwLock};
+use std::path::{Path, PathBuf};
+use std::sync::{Arc, RwLock, Mutex};
 use std::time::Duration;
 use web_view::*;
 
 use super::audio_clip::*;
+use super::serialization::*;
 
 pub struct Player {
     id: usize,
@@ -34,68 +35,75 @@ impl Player {
         self.clips.read().unwrap()[&id].stop();
     }
 
-    pub fn load_sound(
+    pub fn load_sound<P: AsRef<Path>>(
         &mut self,
-        str_path: &str,
-        handle: Handle<()>,
+        path: P,
+        handle: Handle<Option<Arc<Mutex<Serializer>>>>,
         context: Context,
         devices: Arc<RwLock<Vec<Device>>>,
         device_indexes: (usize, usize),
     ) {
-        let result: Result<PathBuf, std::convert::Infallible> = str_path.parse();
+        let name: Arc<String> =
+            Arc::new(path.as_ref().file_name().unwrap().to_str().unwrap().to_string());
 
-        if let Ok(path) = result {
-            let name: Arc<String> =
-                Arc::new(path.file_name().unwrap().to_str().unwrap().to_string());
+        let id = self.tombstones.pop().unwrap_or_else(|| {
+            let temp = self.id.clone();
+            self.id += 1;
+            temp
+        });
 
-            let id = self.tombstones.pop().unwrap_or_else(|| {
-                let temp = self.id.clone();
-                self.id += 1;
-                temp
-            });
+        let temp_name = name.clone();
+        let res = handle.dispatch(move |webview| {
+            webview.eval(&format!(r#"new_sound({}, "{}");"#, id, &temp_name))
+        });
 
-            let temp_name = name.clone();
-            let res = handle.dispatch(move |webview| {
-                webview.eval(&format!(r#"new_sound({}, "{}");"#, id, &temp_name))
-            });
+        #[allow(unused_must_use)]
+        if res.is_ok() {
+            let clips = self.clips.clone();
+            let path_buf: PathBuf = path.as_ref().into();
+            tokio::spawn(async move {
+                let local_handle = handle.clone();
+                let devices = devices.read().unwrap();
+                let result = AudioClip::new(
+                    &path_buf,
+                    context.clone(),
+                    (&devices[device_indexes.0], &devices[device_indexes.1]),
+                    id,
+                    move |userdata| {
+                        let data = userdata.clone();
+                        local_handle.dispatch(move |webview| {
+                            webview.eval(&format!(r#"set_icon({}, "play-icon")"#, data))
+                        });
+                    },
+                );
+                if let Ok(clip) = result {
+                    let duration = clip.duration();
+                    clips.write().unwrap().insert(id, clip);
 
-            #[allow(unused_must_use)]
-            if res.is_ok() {
-                let clips = self.clips.clone();
-                tokio::spawn(async move {
-                    let local_handle = handle.clone();
-                    let devices = devices.read().unwrap();
-                    let result = AudioClip::new(
-                        path,
-                        context.clone(),
-                        (&devices[device_indexes.0], &devices[device_indexes.1]),
-                        id,
-                        move |userdata| {
-                            let data = userdata.clone();
-                            local_handle.dispatch(move |webview| {
-                                webview.eval(&format!(r#"set_icon({}, "play-icon")"#, data))
+                    handle.dispatch(move |webview| {
+                        {
+                            let mut lock = webview.user_data().as_ref().unwrap().lock().unwrap();
+                            lock.config.clips.inner.insert(id, {
+                                AudioClipData {
+                                    name: name.to_string(),
+                                    path: path_buf,
+                                }
                             });
-                        },
-                    );
-                    if let Ok(clip) = result {
-                        let duration = clip.duration();
-                        clips.write().unwrap().insert(id, clip);
-
-                        handle.dispatch(move |webview| {
-                            webview.eval(&format!(
-                                r#"init_sound({}, "{}", "{}");"#,
-                                id,
-                                &name,
-                                duration_to_string(duration)
-                            ))
-                        });
-                    } else {
-                        handle.dispatch(move |webview| {
-                            webview.eval(&format!("remove_sound({});", id))
-                        });
-                    }
-                });
-            }
+                            lock.save();
+                        }
+                        webview.eval(&format!(
+                            r#"init_sound({}, "{}", "{}");"#,
+                            id,
+                            &name,
+                            duration_to_string(duration)
+                        ))
+                    });
+                } else {
+                    handle.dispatch(move |webview| {
+                        webview.eval(&format!("remove_sound({});", id))
+                    });
+                }
+            });
         }
     }
 
