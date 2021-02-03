@@ -16,6 +16,7 @@ rdev = "0.1.0"
 directories = "3.0.1"
 serde = { version = "*", features = ["derive"] }
 ron = "*"
+single-instance = "0.1.2"
 
 [build-dependencies]
 base64 = "0.13.0"

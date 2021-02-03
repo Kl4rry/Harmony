@@ -3,6 +3,7 @@ use ez_audio::*;
 use nfd::Response;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex, RwLock};
+use single_instance::SingleInstance;
 use web_view::*;
 
 mod audio_clip;
@@ -13,6 +14,11 @@ use serialization::*;
 
 #[tokio::main]
 async fn main() {
+    let instance = SingleInstance::new("Soundboard-rs").unwrap();
+    if !instance.is_single() {
+        return;
+    } 
+
     let html_content = include_str!(concat!(env!("OUT_DIR"), "/html_content.html"));
     //println!("{}", include_str!(concat!(env!("OUT_DIR"), "/print")));
 
