@@ -1,11 +1,9 @@
 use ez_audio::*;
 use std::path::Path;
-use std::process::Command;
 use std::time::Duration;
 
 pub struct AudioClip {
     handles: (AudioHandle<usize>, AudioHandle<usize>),
-    duration: Duration,
 }
 
 impl AudioClip {
@@ -22,16 +20,13 @@ impl AudioClip {
                 .user_data(id)
                 .on_end(closure.clone())
                 .load()?,
-            AudioLoader::new(&path, context.clone())
+            AudioLoader::new(&path, context)
                 .device(devices.1)
                 .user_data(id)
                 .on_end(closure)
                 .load()?,
         );
-        Ok(AudioClip {
-            handles,
-            duration: get_duration(path.as_ref()),
-        })
+        Ok(AudioClip { handles })
     }
 
     pub fn play(&self) {
@@ -57,11 +52,11 @@ impl AudioClip {
     }
 
     pub fn is_playing(&self) -> bool {
-        return self.handles.0.is_playing() || self.handles.1.is_playing();
+        self.handles.0.is_playing() || self.handles.1.is_playing()
     }
 
     pub fn duration(&self) -> Duration {
-        self.duration
+        self.handles.0.duration()
     }
 
     pub fn set_primary_device(&self, device: &Device) {
@@ -73,21 +68,4 @@ impl AudioClip {
         self.handles.0.stop();
         self.handles.1.set_output_device(device);
     }
-}
-
-fn get_duration(path: &Path) -> Duration {
-    let result = Command::new("powershell")
-            .args(&["/C", &format!("ffprobe.exe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 \"{}\"", path.display())])
-            .output();
-
-    if let Ok(output) = result {
-        if let Ok(string) = std::str::from_utf8(&output.stdout) {
-            let result: Result<f64, std::num::ParseFloatError> = string.trim_end().parse();
-            if let Ok(seconds) = result {
-                return Duration::from_millis((seconds * 1000f64) as u64);
-            }
-        }
-    }
-    
-    Duration::from_secs(0)
 }

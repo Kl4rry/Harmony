@@ -49,7 +49,7 @@ impl Serializer {
             .open(path)
             .expect("unable to create/open config file");
         Serializer {
-            file: file,
+            file,
             config: Config {
                 clips: Clips {
                     inner: HashMap::new(),
@@ -66,7 +66,7 @@ impl Serializer {
             .seek(SeekFrom::Start(0))
             .expect("unable to clear file");
         self.file
-            .write(&ron::ser::to_string(&self.config).unwrap().as_bytes())
+            .write_all(&ron::ser::to_string(&self.config).unwrap().as_bytes())
             .unwrap();
     }
 }

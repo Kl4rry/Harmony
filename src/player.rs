@@ -1,7 +1,7 @@
 use ez_audio::*;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
-use std::sync::{Arc, RwLock, Mutex};
+use std::sync::{Arc, Mutex, RwLock};
 use std::time::Duration;
 use web_view::*;
 
@@ -43,11 +43,17 @@ impl Player {
         devices: Arc<RwLock<Vec<Device>>>,
         device_indexes: (usize, usize),
     ) {
-        let name: Arc<String> =
-            Arc::new(path.as_ref().file_name().unwrap().to_str().unwrap().to_string());
+        let name: Arc<String> = Arc::new(
+            path.as_ref()
+                .file_name()
+                .unwrap()
+                .to_str()
+                .unwrap()
+                .to_string(),
+        );
 
         let id = self.tombstones.pop().unwrap_or_else(|| {
-            let temp = self.id.clone();
+            let temp = self.id;
             self.id += 1;
             temp
         });
@@ -70,7 +76,7 @@ impl Player {
                     (&devices[device_indexes.0], &devices[device_indexes.1]),
                     id,
                     move |userdata| {
-                        let data = userdata.clone();
+                        let data = *userdata;
                         local_handle.dispatch(move |webview| {
                             webview.eval(&format!(r#"set_icon({}, "play-icon")"#, data))
                         });
@@ -96,12 +102,11 @@ impl Player {
                             id,
                             &name,
                             duration_to_string(duration)
-                        ))
+                        ));
+                        Ok(())
                     });
                 } else {
-                    handle.dispatch(move |webview| {
-                        webview.eval(&format!("remove_sound({});", id))
-                    });
+                    handle.dispatch(move |webview| webview.eval(&format!("remove_sound({});", id)));
                 }
             });
         }
@@ -134,16 +139,19 @@ fn duration_to_string(duration: Duration) -> String {
     let seconds = duration.as_secs() % 60;
     let minutes = duration.as_secs() / 60;
 
-    let mut duration_string = String::from("");
-
-    let temp;
+    let temp_minutes;
     if minutes < 10 {
-        temp = format!("0{}:", minutes);
+        temp_minutes = format!("0{}", minutes);
     } else {
-        temp = format!("{}", minutes);
+        temp_minutes = format!("{}", minutes);
     }
 
-    duration_string.push_str(&temp);
-    duration_string.push_str(&format!("{}", seconds));
-    duration_string
+    let temp_seconds;
+    if seconds < 10 {
+        temp_seconds = format!("0{}", seconds);
+    } else {
+        temp_seconds = format!("{}", seconds);
+    }
+
+    format!("{}:{}", temp_minutes, temp_seconds)
 }

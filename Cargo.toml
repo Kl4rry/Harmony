@@ -7,7 +7,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-web-view = { git = "https://github.com/Boscop/web-view", features = ["edge"] }
+web-view = { path = "C:/Users/Axel/projects/web-view", features = ["edge"] }
 nfd = { git = "https://github.com/saurvs/nfd-rs" }
 #ez-audio = { git = "https://github.com/Kl4rry/ez-audio" }
 ez_audio = { path = "C:/Users/Axel/projects/ez-audio" }
@@ -17,6 +17,7 @@ directories = "3.0.1"
 serde = { version = "*", features = ["derive"] }
 ron = "*"
 single-instance = "0.1.2"
+msgbox = "0.6.0"
 
 [build-dependencies]
 base64 = "0.13.0"

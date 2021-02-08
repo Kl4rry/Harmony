@@ -1,10 +1,13 @@
+//#![windows_subsystem = "windows"]
+
 use directories::*;
 use ez_audio::*;
 use nfd::Response;
+use single_instance::SingleInstance;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex, RwLock};
-use single_instance::SingleInstance;
 use web_view::*;
+use std::panic;
 
 mod audio_clip;
 mod player;
@@ -14,13 +17,18 @@ use serialization::*;
 
 #[tokio::main]
 async fn main() {
+    panic::set_hook(Box::new(|panic_info| {
+        if let Some(s) = panic_info.payload().downcast_ref::<&str>() {
+           let _ = msgbox::create("Error", &format!("panic occurred: {:?}", s), msgbox::IconType::Error);
+        } else {
+           let _ = msgbox::create("Error", "panic occurred", msgbox::IconType::Error);
+        }
+    }));
+
     let instance = SingleInstance::new("Soundboard-rs").unwrap();
     if !instance.is_single() {
         return;
-    } 
-
-    let html_content = include_str!(concat!(env!("OUT_DIR"), "/html_content.html"));
-    //println!("{}", include_str!(concat!(env!("OUT_DIR"), "/print")));
+    }
 
     let context = tokio::spawn(async move { Context::new().unwrap() })
         .await
@@ -40,7 +48,9 @@ async fn main() {
 
     let ser: Option<Arc<Mutex<Serializer>>> = None;
 
-    let window = WebViewBuilder::new()
+    let html_content = include_str!(concat!(env!("OUT_DIR"), "/html_content.html"));
+    //println!("{}", include_str!(concat!(env!("OUT_DIR"), "/print")));
+    let mut window = WebViewBuilder::new()
         .title("Soundboard")
         .content(Content::Html(html_content))
         .size(1280, 720)
@@ -54,17 +64,15 @@ async fn main() {
             match args[0] {
                 "browse" => {
                     if !browsing.swap(true, Ordering::Relaxed) {
-                        if let Ok(response) = nfd::dialog_multiple().open() {
-                            if let Response::OkayMultiple(files) = response {
-                                for file in files {
-                                    player.load_sound(
-                                        &file,
-                                        webview.handle(),
-                                        context.clone(),
-                                        devices.clone(),
-                                        (primary_device_index, secondary_device_index),
-                                    );
-                                }
+                        if let Ok(Response::OkayMultiple(files)) = nfd::dialog_multiple().open() {
+                            for file in files {
+                                player.load_sound(
+                                    &file,
+                                    webview.handle(),
+                                    context.clone(),
+                                    devices.clone(),
+                                    (primary_device_index, secondary_device_index),
+                                );
                             }
                         }
                         browsing.store(false, Ordering::Relaxed);
@@ -94,7 +102,7 @@ async fn main() {
                         }
                         list.push_str(&format!(r#","{}""#, device.name()));
                     }
-                    list.push_str("]");
+                    list.push(']');
 
                     webview.eval(&format!("set_device_list({})", list));
                 }
@@ -142,7 +150,7 @@ async fn main() {
                     ))));
                     webview.eval(&format!(
                         "update_volume({},{});",
-                        de.config.volume.0, de.config.volume.1
+                        de.config.volume.1, de.config.volume.0
                     ));
                     webview.eval(&format!(
                         "update_device({},{});",

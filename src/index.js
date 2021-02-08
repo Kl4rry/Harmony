@@ -4,7 +4,6 @@ function sleep(ms) {
 
 function drop(ev) {
     ev.preventDefault();
-    external.invoke(ev.target.innerHTML);
     external.invoke("data: " + ev.dataTransfer.getData("item"));
 }
 
