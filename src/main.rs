@@ -50,7 +50,7 @@ async fn main() {
 
     let html_content = include_str!(concat!(env!("OUT_DIR"), "/html_content.html"));
     //println!("{}", include_str!(concat!(env!("OUT_DIR"), "/print")));
-    let mut window = WebViewBuilder::new()
+    let window = WebViewBuilder::new()
         .title("Soundboard")
         .content(Content::Html(html_content))
         .size(1280, 720)
