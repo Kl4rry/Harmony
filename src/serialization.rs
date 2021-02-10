@@ -67,7 +67,7 @@ impl Serializer {
             .expect("unable to clear file");
         self.file
             .write_all(&ron::ser::to_string(&self.config).unwrap().as_bytes())
-            .unwrap();
+            .expect("unable to save");
     }
 }
 
