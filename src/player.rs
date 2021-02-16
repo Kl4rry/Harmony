@@ -69,19 +69,24 @@ impl Player {
             let path_buf: PathBuf = path.as_ref().into();
             tokio::spawn(async move {
                 let local_handle = handle.clone();
-                let devices = devices.read().unwrap();
-                let result = AudioClip::new(
-                    &path_buf,
-                    context.clone(),
-                    (&devices[device_indexes.0], &devices[device_indexes.1]),
-                    id,
-                    move |userdata| {
-                        let data = *userdata;
-                        local_handle.dispatch(move |webview| {
-                            webview.eval(&format!(r#"set_icon({}, "play-icon")"#, data))
-                        });
-                    },
-                );
+                let temp_buf = path_buf.clone();
+
+                let result = tokio::task::spawn_blocking(move || {
+                    let devices = devices.read().unwrap();
+                    AudioClip::new(
+                        &temp_buf,
+                        context.clone(),
+                        (&devices[device_indexes.0], &devices[device_indexes.1]),
+                        id,
+                        move |userdata| {
+                            let data = *userdata;
+                            local_handle.dispatch(move |webview| {
+                                webview.eval(&format!(r#"set_icon({}, "play-icon")"#, data))
+                            });
+                        },
+                    )
+                }).await.unwrap();
+
                 if let Ok(clip) = result {
                     let duration = clip.duration();
                     clips.write().unwrap().insert(id, clip);
