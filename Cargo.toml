@@ -1,5 +1,5 @@
 [package]
-name = "soundboard-rs"
+name = "harmony"
 version = "0.1.0"
 authors = ["Axel Kappel <axel.e.kappel@gmail.com>"]
 edition = "2018"

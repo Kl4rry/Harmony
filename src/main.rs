@@ -25,7 +25,7 @@ async fn main() {
         }
     }));
 
-    let instance = SingleInstance::new("Soundboard-rs").unwrap();
+    let instance = SingleInstance::new("Harmony").unwrap();
     if !instance.is_single() {
         return;
     }
@@ -51,7 +51,7 @@ async fn main() {
     let html_content = include_str!(concat!(env!("OUT_DIR"), "/html_content.html"));
     //println!("{}", include_str!(concat!(env!("OUT_DIR"), "/print")));
     let window = WebViewBuilder::new()
-        .title("Soundboard")
+        .title("Harmony")
         .content(Content::Html(html_content))
         .size(1280, 720)
         .min_size(640, 360)
