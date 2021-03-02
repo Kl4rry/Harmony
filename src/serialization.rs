@@ -46,10 +46,11 @@ impl Serializer {
         let file = OpenOptions::new()
             .write(true)
             .create(true)
+            .truncate(true)
             .open(path)
             .expect("unable to create/open config file");
         Serializer {
-            file,
+            file: file,
             config: Config {
                 clips: Clips {
                     inner: HashMap::new(),

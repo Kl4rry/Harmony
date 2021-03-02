@@ -138,6 +138,13 @@ impl Player {
             clip.1.set_volume(volume_primary, volume_secondary);
         }
     }
+
+    pub fn stop_all(&self) {
+        for clip in self.clips.read().unwrap().iter() {
+            clip.1.stop();
+            clip.1.stop();
+        }
+    }
 }
 
 fn duration_to_string(duration: Duration) -> String {

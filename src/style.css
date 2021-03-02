@@ -8,14 +8,12 @@ body {
 }
 
 main {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: start;
-    align-items: flex-start;
-    align-content: flex-start;
-    height: calc(100vh - 100px - 20px);
-    padding-right: 10px;
-    overflow: auto;
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    height: calc(100vh - 100px - 40px);
+    padding: 10px;
+    overflow-y: auto;
 }
 
 nav {
@@ -99,11 +97,6 @@ select {
     background-color:#0D1117;
     display: flex;
     align-items: center;
-    max-width: 500px;
-    width: 400px;
-    flex-grow: 1;
-    margin-top: 10px;
-    margin-left: 10px;
     border-radius: 7px;
 }
 

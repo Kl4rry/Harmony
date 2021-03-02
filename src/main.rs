@@ -183,4 +183,5 @@ async fn main() {
         .unwrap();
 
     let _ = window.run();
+    player.stop_all();
 }
