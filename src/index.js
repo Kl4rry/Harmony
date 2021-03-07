@@ -49,7 +49,7 @@ function new_sound(id, name) {
     div.setAttribute("class", "item");
     div.setAttribute("id", id);
     div.innerHTML = `<p>Loading: ${name}</p>`;
-    document.getElementById("main").appendChild(div);
+    document.getElementById("grid").appendChild(div);
 }
 
 function init_sound(id, name, duration) {
@@ -63,7 +63,6 @@ function init_sound(id, name, duration) {
     div.setAttribute("dragenter", "enter(event)");
     div.setAttribute("draggable", "true");
     div.innerHTML = `${play}${restart}<p class="name">${name}</p><p class="duration">${duration}</p>`;
-    
 }
 
 function set_icon(id, icon) {
@@ -78,7 +77,7 @@ function on_end(id) {
 
 function remove_sound(id) {
     let div = document.getElementById(id);
-    document.getElementById("main").removeChild(div);
+    document.getElementById("grid").removeChild(div);
 }
 
 function set_device_list(list) {

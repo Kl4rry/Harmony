@@ -1,4 +1,4 @@
-//#![windows_subsystem = "windows"]
+#![windows_subsystem = "windows"]
 
 use directories::*;
 use ez_audio::*;
@@ -54,7 +54,7 @@ async fn main() {
         .title("Harmony")
         .content(Content::Html(html_content))
         .size(1280, 720)
-        .min_size(640, 360)
+        .min_size(640, 400)
         .resizable(true)
         .user_data(ser)
         .invoke_handler(|webview, arg| {

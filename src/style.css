@@ -8,12 +8,15 @@ body {
 }
 
 main {
+    height: calc(100vh - 100px - 20px);
+    overflow-y: auto;
+}
+
+#grid {
     display: grid;
     gap: 10px;
     grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    height: calc(100vh - 100px - 40px);
-    padding: 10px;
-    overflow-y: auto;
+    margin: 10px;
 }
 
 nav {
