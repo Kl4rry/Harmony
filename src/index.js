@@ -11,8 +11,8 @@ function drop(ev) {
 
 function drag(ev) {
     let rect = ev.target.getBoundingClientRect();
-    let x = ev.clientX - rect.left; //x position within the element.
-    let y = ev.clientY - rect.top;  //y position within the element.
+    let x = ev.clientX - rect.left;
+    let y = ev.clientY - rect.top;
     let width = ev.target.offsetWidth;
 
     dragged = ev.target;
@@ -33,8 +33,20 @@ async function dragover(ev) {
     ev.preventDefault();
     ev.dataTransfer.dropEffect = "move";
     let target = ev.target;
+    let target_index = Array.from(target.parentNode.children).indexOf(target);
+    let dragged_index = Array.from(dragged.parentNode.children).indexOf(dragged);
     if(target.classList.contains("item")) {
-        target.parentNode.insertBefore(dragged, target);
+        if(target_index > dragged_index) {
+            target.parentNode.insertBefore(dragged, target.nextSibling);
+        } else if(target_index < dragged_index) {
+            target.parentNode.insertBefore(dragged, target);
+        }
+    } else if(target.classList.contains("name")) {
+        if(target_index > dragged_index) {
+            target.parentNode.parentNode.insertBefore(dragged, target.nextSibling);
+        } else if(target_index < dragged_index) {
+            target.parentNode.parentNode.insertBefore(dragged, target);
+        }
     }
 }
 
@@ -45,7 +57,6 @@ function dragend(ev) {
         ghost.parentNode.removeChild(ghost);
     }
     document.body.style.cursor = null;
-    external.invoke("endreeeeee");
 }
 
 function browse() {
@@ -77,7 +88,7 @@ function init_sound(id, name, duration) {
     div.setAttribute("ondrop", "drop(event)");
     div.setAttribute("ondragend", "dragend(event)");
     div.setAttribute("draggable", "true");
-    div.innerHTML = `${play}${restart}<p class="name">${name}</p><p class="duration">${duration}</p>`;
+    div.innerHTML = `${play}${restart}<p class="name">${name}:${id}</p><p class="duration">${duration}</p>`;
 }
 
 function set_icon(id, icon) {

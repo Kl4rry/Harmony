@@ -104,10 +104,6 @@ select {
     border-radius: 7px;
 }
 
-.item * {
-    pointer-events: none;
-}
-
 .item-button {
     height: 16px;
     width: 16px;
