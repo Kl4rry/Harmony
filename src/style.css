@@ -8,6 +8,7 @@ body {
 }
 
 main {
+    background-color:#06090F;
     height: calc(100vh - 100px - 20px);
     overflow-y: auto;
 }
@@ -101,6 +102,10 @@ select {
     display: flex;
     align-items: center;
     border-radius: 7px;
+}
+
+.item * {
+    pointer-events: none;
 }
 
 .item-button {

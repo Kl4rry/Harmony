@@ -2,34 +2,50 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+let dragged = null;
+
 function drop(ev) {
     ev.preventDefault();
-    external.invoke("data: " + ev.dataTransfer.getData("item"));
+    dragged = null;
 }
 
 function drag(ev) {
-    ev.dataTransfer.setData("item", ev.target);
-    external.invoke("drag");
+    let rect = ev.target.getBoundingClientRect();
+    let x = ev.clientX - rect.left; //x position within the element.
+    let y = ev.clientY - rect.top;  //y position within the element.
+    let width = ev.target.offsetWidth;
+
+    dragged = ev.target;
+    const crt = dragged.cloneNode(true);
+    crt.style.opacity = "0.2";
+    crt.style.minWidth = `${width}px`;
+    crt.style.position = "absolute";
+    crt.style.top = "0px";
+    crt.style.zIndex = "-10";
+    crt.id = "ghost";
+    crt.style.right = "0px";
+    document.body.appendChild(crt);
+    ev.dataTransfer.setDragImage(crt, x, y);
+    document.body.style.cursor = "grabbing";
 }
 
 async function dragover(ev) {
-    let target = ev.target;
-    while(target.className != "item") {
-        let target = target.parentNode;
-    }
     ev.preventDefault();
-    ev.target.id = "target";
-}
-
-function leave(ev) {
-    external.invoke("leave");
-    if(ev.target.id == "target") {
-        ev.target.id = "";
+    ev.dataTransfer.dropEffect = "move";
+    let target = ev.target;
+    if(target.classList.contains("item")) {
+        target.parentNode.insertBefore(dragged, target);
     }
 }
 
-function enter(ev) {
-    external.invoke("enter");
+function dragend(ev) {
+    let ghost = document.getElementById("ghost");
+    if(ghost && ghost.parentNode) {
+        ghost.style.opacity = "0";
+        ghost.parentNode.removeChild(ghost);
+    }
+    document.body.style.cursor = null;
+    external.invoke("endreeeeee");
 }
 
 function browse() {
@@ -59,8 +75,7 @@ function init_sound(id, name, duration) {
     div.setAttribute("ondragstart", "drag(event)");
     div.setAttribute("ondragover", "dragover(event)");
     div.setAttribute("ondrop", "drop(event)");
-    div.setAttribute("ondragleave", "leave(event)");
-    div.setAttribute("dragenter", "enter(event)");
+    div.setAttribute("ondragend", "dragend(event)");
     div.setAttribute("draggable", "true");
     div.innerHTML = `${play}${restart}<p class="name">${name}</p><p class="duration">${duration}</p>`;
 }
