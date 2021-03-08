@@ -16,4 +16,4 @@ https://jackaudio.org/
 
 ## Compiling
 To build the application use cargo  
-A c++ compiler is required as Harmony it depends on the [cc crate](https://crates.io/crates/cc)
+A c++ compiler is required as [Harmony](https://github.com/Kl4rry/Harmony) it depends on the [cc crate](https://crates.io/crates/cc)
