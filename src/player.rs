@@ -111,10 +111,18 @@ impl Player {
                         Ok(())
                     });
                 } else {
-                    handle.dispatch(move |webview| webview.eval(&format!("remove_sound({});", id)));
+                    handle.dispatch(move |webview| webview.eval(&format!("remove_sound_item({});", id)));
                 }
             });
         }
+    }
+
+    pub fn remove(&mut self, id: usize, ser: Arc<Mutex<Serializer>>) {
+        self.clips.write().unwrap().remove(&id).unwrap();
+        self.tombstones.push(id);
+        let mut lock = ser.lock().unwrap();
+        lock.config.clips.inner.remove(&id);
+        lock.save();
     }
 
     pub fn set_primary_device(&self, device: &Device) {

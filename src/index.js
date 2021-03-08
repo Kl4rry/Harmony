@@ -47,7 +47,6 @@ async function dragover(ev) {
 function dragend(ev) {
     let ghost = document.getElementById("ghost");
     if(ghost && ghost.parentNode) {
-        ghost.style.opacity = "0";
         ghost.parentNode.removeChild(ghost);
     }
     document.body.style.cursor = null;
@@ -58,21 +57,44 @@ function browse() {
     external.invoke("browse");
 }
 
+function exit() {
+    external.invoke("exit");
+}
+
 //menu bar
-function show_file_menu() {
-    let menu = document.getElementById("file-menu");
-    if(menu.style.display == "block") {
+let menu_open = false;
+
+function show_menu(name) {
+    let menu = document.getElementById(`${name}-menu`);
+    if(menu_open) {
         menu.style.display = "none";
+        document.getElementById(`${name}-button`).style.backgroundColor = "#21252B";
         document.getElementById("menu-bar-close-zone").style.display = "none";
+        menu_open = false;
     } else {
         menu.style.display = "block";
+        document.getElementById(`${name}-button`).style.backgroundColor = "#383B41";
         document.getElementById("menu-bar-close-zone").style.display = "block";
+        menu_open = true;
+    }
+}
+
+function mouse_over_menu(name) {
+    if(menu_open) {
+        close_all_menus();
+        show_menu(name);
     }
 }
 
 function close_all_menus() {
     document.getElementById("file-menu").style.display = "none";
+    document.getElementById("file-button").style.backgroundColor = "#21252B";
+
+    document.getElementById("edit-menu").style.display = "none";
+    document.getElementById("edit-button").style.backgroundColor = "#21252B";
+
     document.getElementById("menu-bar-close-zone").style.display = "none";
+    menu_open = false;
 }
 
 //sounditems
@@ -88,6 +110,14 @@ function new_sound(id, name) {
     let div = document.createElement("div");
     div.setAttribute("class", "item");
     div.setAttribute("id", id);
+
+    div.setAttribute("ondragstart", "drag(event)");
+    div.setAttribute("ondragover", "dragover(event)");
+    div.setAttribute("ondrop", "drop(event)");
+    div.setAttribute("ondragend", "dragend(event)");
+    div.setAttribute("draggable", "true");
+    div.setAttribute("onclick", "select(event)");
+
     div.innerHTML = `<p>Loading: ${name}</p>`;
     document.getElementById("grid").appendChild(div);
 }
@@ -96,12 +126,8 @@ function init_sound(id, name, duration) {
     let div = document.getElementById(id);
     let play = `<div class="button-container"><div class="item-button" onclick="play_pause(this)"><div id="play" class="play-icon"></div></div></div>`
     let restart = `<div class="button-container"><div class="item-button" onclick="restart(this)"><div class="play-icon"></div></div></div>`
-    div.setAttribute("ondragstart", "drag(event)");
-    div.setAttribute("ondragover", "dragover(event)");
-    div.setAttribute("ondrop", "drop(event)");
-    div.setAttribute("ondragend", "dragend(event)");
-    div.setAttribute("draggable", "true");
     div.innerHTML = `${play}${restart}<p class="name">${name}</p><p class="duration">${duration}</p>`;
+    div.setAttribute("init", true);
 }
 
 function set_icon(id, icon) {
@@ -114,9 +140,65 @@ function on_end(id) {
     set_icon(id, "play-icon");
 }
 
-function remove_sound(id) {
+//just removes the ui element
+function remove_sound_item(id) {
     let div = document.getElementById(id);
     document.getElementById("grid").removeChild(div);
+}
+
+
+//removes ui and backend audio clip if it is inited
+async function remove_sound(id) {
+    let div = document.getElementById(id);
+    if(div.getAttribute("init")) {
+        document.getElementById("grid").removeChild(div);
+        external.invoke(`remove ${id}`)
+    }
+}
+
+async function remove_selected() {
+    close_all_menus();
+    let selected = document.getElementsByClassName("selected");
+    let ids = [];
+    for(let i = 0; i < selected.length; ++i) {
+        ids.push(selected[i].id)
+    }
+    for(let i = 0; i < ids.length; ++i) {
+        remove_sound(ids[i]);
+    }
+}
+
+//selection
+async function select(event) {
+    let items = document.getElementsByClassName("item");
+    let target = event.target;
+    while(!target.classList.contains("item")) {
+        target = target.parentNode;
+    }
+    if(event.shiftKey) {
+        let selected = document.getElementsByClassName("selected");
+        let first_index = Array.from(items).indexOf(selected[0]);
+        let click_index = Array.from(items).indexOf(target);
+
+        for(let i = 0; i < items.length; ++i) {
+            items[i].classList.remove("selected");
+        }
+
+        if(first_index > click_index) {
+            for(let i = click_index; i < first_index; ++i) {
+                items[i].classList.add("selected");
+            }
+        } else {
+            for(let i = first_index; i < click_index; ++i) {
+                items[i].classList.add("selected");
+            }
+        }
+    } else if(!event.ctrlKey) {
+        for(i = 0; i < items.length; i++) {
+            items[i].classList.remove("selected");
+        }
+    }
+    target.classList.add("selected");
 }
 
 //devices and volume settings

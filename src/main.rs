@@ -62,6 +62,9 @@ async fn main() {
 
             #[allow(unused_must_use)]
             match args[0] {
+                "exit" => {
+                    webview.exit();
+                }
                 "browse" => {
                     if !browsing.swap(true, Ordering::Relaxed) {
                         if let Ok(Response::OkayMultiple(files)) = nfd::dialog_multiple().open() {
@@ -78,6 +81,10 @@ async fn main() {
                         browsing.store(false, Ordering::Relaxed);
                     }
                 }
+                "remove" => {
+                    let index: usize = args[1].parse().unwrap();
+                    player.remove(index, webview.user_data().as_ref().unwrap().clone());
+                }
                 "play_pause" => {
                     let index: usize = args[1].parse().unwrap();
                     if player.is_playing(index) {
@@ -91,6 +98,7 @@ async fn main() {
                 "restart" => {
                     let index: usize = args[1].parse().unwrap();
                     player.restart(index);
+                    webview.eval(&format!(r#"set_icon({}, "pause-icon")"#, index));
                 }
                 "update_device_list" => {
                     let mut list = String::from(r#"["Default""#);
@@ -111,6 +119,7 @@ async fn main() {
                     let devices = &*devices.read().unwrap();
                     player.set_primary_device(&devices[index]);
                     primary_device_index = index;
+                    player.stop_all();
 
                     let mut lock = webview.user_data().as_ref().unwrap().lock().unwrap();
                     lock.config.device.0 = index;
@@ -121,6 +130,7 @@ async fn main() {
                     let devices = &*devices.read().unwrap();
                     player.set_secondary_device(&devices[index]);
                     secondary_device_index = index;
+                    player.stop_all();
 
                     let mut lock = webview.user_data().as_ref().unwrap().lock().unwrap();
                     lock.config.device.1 = index;
