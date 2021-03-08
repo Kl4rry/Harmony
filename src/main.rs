@@ -73,17 +73,21 @@ async fn main() {
                     if !browsing.swap(true, Ordering::Relaxed) {
                         if let Ok(Response::OkayMultiple(files)) = nfd::dialog_multiple().open() {
                             for file in files {
-                                player.load_sound(
-                                    &file,
-                                    webview.handle(),
-                                    context.clone(),
-                                    devices.clone(),
-                                    (primary_device_index, secondary_device_index),
-                                );
+                                webview.eval(&format!(r#"load(String.raw`{}`)"#, file));
                             }
                         }
                         browsing.store(false, Ordering::Relaxed);
                     }
+                }
+                "load" => {
+                    let file = &args[1..args.len()].join(" ");
+                    player.load_sound(
+                        &file,
+                        webview.handle(),
+                        context.clone(),
+                        devices.clone(),
+                        (primary_device_index, secondary_device_index),
+                    );
                 }
                 "remove" => {
                     let index: usize = args[1].parse().unwrap();
@@ -155,7 +159,7 @@ async fn main() {
                         .document_dir()
                         .expect("unable to find document directory")
                         .to_path_buf();
-                    path.push("config.ron");
+                    path.push("harmony.ron");
                     let de = Deserializer::load(&path);
                     *webview.user_data_mut() = Some(Arc::new(Mutex::new(Serializer::new(
                         &path,
