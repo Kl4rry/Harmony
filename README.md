@@ -14,6 +14,9 @@ https://jackaudio.org/
 
 ✅ = Tested and working  🚧 = Untested but should work with minimal changes
 
+## Install instruction
+comming soon...
+
 ## Compiling
 To build the application use cargo  
 A c++ compiler is required as [Harmony](https://github.com/Kl4rry/Harmony) it depends on the [cc crate](https://crates.io/crates/cc)
