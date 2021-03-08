@@ -11,8 +11,14 @@
     </head>
 
     <body>
+        <div id="menu-bar-close-zone" onclick="close_all_menus()"></div>
         <nav>
-            <button onclick="browse()">Browse</button>
+            <div>
+                <p class="menu-bar-button" onclick="show_file_menu()">File</p>
+                <div class="menu" id="file-menu">
+                    <p class="menu-item" onclick="browse()">New Sound</p>
+                </div>
+            </div>
         </nav>
         
         <main>
