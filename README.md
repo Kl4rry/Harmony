@@ -9,10 +9,11 @@ https://jackaudio.org/
 | OS            | Support|
 | ------------- |:------:|
 | Windows       | ✅ |
-| Linux         | 🚧 |
-| MacOS         | 🚧 |
+| Linux         | 🆗 |
+| MacOS         | 🆗 |
+| Other         | ❌ |
 
-✅ = Tested and working  🚧 = Untested but should work with minimal changes
+✅ = Tested and working  🆗 = Untested but should work with minimal changes ❌ = Not supported
 
 ## Install instruction
 comming soon...
