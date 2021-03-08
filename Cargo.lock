@@ -753,6 +753,7 @@ dependencies = [
  "single-instance",
  "tokio",
  "web-view",
+ "winapi",
  "winres",
 ]
 

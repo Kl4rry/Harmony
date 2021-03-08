@@ -85,7 +85,9 @@ impl Player {
                             });
                         },
                     )
-                }).await.unwrap();
+                })
+                .await
+                .unwrap();
 
                 if let Ok(clip) = result {
                     let duration = clip.duration();
@@ -111,7 +113,9 @@ impl Player {
                         Ok(())
                     });
                 } else {
-                    handle.dispatch(move |webview| webview.eval(&format!("remove_sound_item({});", id)));
+                    handle.dispatch(move |webview| {
+                        webview.eval(&format!("remove_sound_item({});", id))
+                    });
                 }
             });
         }

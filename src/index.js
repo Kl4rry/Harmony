@@ -64,17 +64,25 @@ function exit() {
 //menu bar
 let menu_open = false;
 
+function onclick_file_menu(event) {
+    event.stopPropagation();
+    show_menu('file');
+}
+
+function onclick_edit_menu(event) {
+    event.stopPropagation();
+    show_menu('edit');
+}
+
 function show_menu(name) {
     let menu = document.getElementById(`${name}-menu`);
     if(menu_open) {
         menu.style.display = "none";
         document.getElementById(`${name}-button`).style.backgroundColor = "#21252B";
-        document.getElementById("menu-bar-close-zone").style.display = "none";
         menu_open = false;
     } else {
         menu.style.display = "block";
         document.getElementById(`${name}-button`).style.backgroundColor = "#383B41";
-        document.getElementById("menu-bar-close-zone").style.display = "block";
         menu_open = true;
     }
 }
@@ -86,14 +94,28 @@ function mouse_over_menu(name) {
     }
 }
 
+document.addEventListener('click', function(event) {
+    let menus = document.getElementsByClassName("menu");
+    let click_inside = false;
+    for(let i = 0; i < menus.length; ++i) {
+        click_inside = (menus[i].contains(event.target) || event.target.classList.contains("menu"));
+        if(click_inside) {
+            break;
+        }
+    }
+    if(menu_open) {
+        if(!click_inside) {
+            close_all_menus();
+        }
+    }
+});
+
 function close_all_menus() {
     document.getElementById("file-menu").style.display = "none";
     document.getElementById("file-button").style.backgroundColor = "#21252B";
 
     document.getElementById("edit-menu").style.display = "none";
     document.getElementById("edit-button").style.backgroundColor = "#21252B";
-
-    document.getElementById("menu-bar-close-zone").style.display = "none";
     menu_open = false;
 }
 

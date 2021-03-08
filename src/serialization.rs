@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use std::fs::*;
 use std::io::{Seek, SeekFrom, Write};
 use std::path::{Path, PathBuf};
+use std::sync::{Arc, Mutex};
 
 #[derive(Serialize, Deserialize)]
 pub struct AudioClipData {
@@ -37,7 +38,7 @@ impl Serialize for Clips {
 }
 
 pub struct Serializer {
-    file: File,
+    file: Arc<Mutex<File>>,
     pub config: Config<Clips>,
 }
 
@@ -50,7 +51,7 @@ impl Serializer {
             .open(path)
             .expect("unable to create/open config file");
         Serializer {
-            file: file,
+            file: Arc::new(Mutex::new(file)),
             config: Config {
                 clips: Clips {
                     inner: HashMap::new(),
@@ -62,13 +63,20 @@ impl Serializer {
     }
 
     pub fn save(&mut self) {
-        self.file.set_len(0).expect("unable to clear file");
-        self.file
-            .seek(SeekFrom::Start(0))
-            .expect("unable to clear file");
-        self.file
-            .write_all(&ron::ser::to_string(&self.config).unwrap().as_bytes())
-            .expect("unable to save");
+        let file = self.file.clone();
+        let string = ron::ser::to_string(&self.config).unwrap();
+        tokio::spawn(async move {
+            tokio::task::spawn_blocking(move || {
+                let mut guard = file.lock().unwrap();
+                guard.set_len(0).expect("unable to clear file");
+                guard
+                    .seek(SeekFrom::Start(0))
+                    .expect("unable to clear file");
+                guard.write_all(&string.as_bytes()).expect("unable to save");
+                guard.flush().expect("unable to flush file");
+                guard.sync_data().expect("unable to sync file data");
+            });
+        });
     }
 }
 

@@ -4,10 +4,10 @@ use directories::*;
 use ez_audio::*;
 use nfd::Response;
 use single_instance::SingleInstance;
+use std::panic;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex, RwLock};
 use web_view::*;
-use std::panic;
 
 mod audio_clip;
 mod player;
@@ -19,9 +19,13 @@ use serialization::*;
 async fn main() {
     panic::set_hook(Box::new(|panic_info| {
         if let Some(s) = panic_info.payload().downcast_ref::<&str>() {
-           let _ = msgbox::create("Error", &format!("panic occurred: {:?}", s), msgbox::IconType::Error);
+            let _ = msgbox::create(
+                "Error",
+                &format!("panic occurred: {:?}", s),
+                msgbox::IconType::Error,
+            );
         } else {
-           let _ = msgbox::create("Error", "panic occurred", msgbox::IconType::Error);
+            let _ = msgbox::create("Error", "panic occurred", msgbox::IconType::Error);
         }
     }));
 

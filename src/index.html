@@ -11,10 +11,9 @@
     </head>
 
     <body>
-        <div id="menu-bar-close-zone" onclick="close_all_menus()"></div>
         <nav>
             <div>
-                <p class="menu-bar-button" id="file-button" onmouseover="mouse_over_menu('file')" onclick="show_menu('file')">File</p>
+                <p class="menu-bar-button" id="file-button" onmouseover="mouse_over_menu('file')" onclick="onclick_file_menu(event)">File</p>
                 <div class="menu" id="file-menu">
                     <p class="menu-item" onclick="browse()">New Sound</p>
                     <hr>
@@ -22,7 +21,7 @@
                 </div>
             </div>
             <div>
-                <p class="menu-bar-button" id="edit-button" onmouseover="mouse_over_menu('edit')" onclick="show_menu('edit')">Edit</p>
+                <p class="menu-bar-button" id="edit-button" onmouseover="mouse_over_menu('edit')" onclick="onclick_edit_menu(event)">Edit</p>
                 <div class="menu" id="edit-menu">
                     <p class="menu-item" onclick="remove_selected()">Remove Sound</p>
                 </div>
