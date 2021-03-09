@@ -1,3 +1,4 @@
+![alt text](https://github.com/Kl4rry/Harmony/blob/main/res/logo.png "Logo")
 # Harmony
 
 Harmony is a software soundboard written in Rust  
