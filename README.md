@@ -1,10 +1,8 @@
-![alt text](https://github.com/Kl4rry/Harmony/blob/main/res/logo.png "Logo")
-# Harmony
+<p align="center">
+  <img src="https://github.com/Kl4rry/Harmony/blob/main/res/logo.png" />
+</p>
 
-Harmony is a software soundboard written in Rust  
-To inject the audio into your mic to play it in any voice application you need to use something like:  
-https://vb-audio.com/Cable/   
-https://jackaudio.org/
+<p align="center">A software soundboard written in Rust</p>
 
 ## Supported Platforms
 | OS            | Support|
@@ -27,9 +25,14 @@ https://jackaudio.org/
 
 Vorbis playback is supported but some features like seeing duration of sound are not working yet.
 
+## Mic injection
+To inject the audio into your mic to play it in any voice application you need to use something like:  
+https://vb-audio.com/Cable/   
+https://jackaudio.org/
+
 ## Install instruction
 comming soon...
 
-## Compiling
+## Building
 To build the application use cargo.  
 A c++ compiler is required as [Harmony](https://github.com/Kl4rry/Harmony) it depends on the [cc crate](https://crates.io/crates/cc).
