@@ -14,16 +14,15 @@
 ✅ = Tested and working 🆗 = Untested but should work with minimal changes
 
 ## Supported Codecs
-| OS            | Support|
-| ------------- |:------:|
-| WAV           | ✅ |
-| MP3           | ✅ |
-| FLAC          | ✅ |
-| Vorbis        | 🆗 |
+| Codec         | Playback | Duration |
+| ------------- |:------:|:------:|
+| WAV           | ✅ | ✅ |
+| MP3           | ✅ | ✅ |
+| FLAC          | ✅ | ✅ |
+| Vorbis        | ✅ | ❌ |
 
-✅ = Fully supported 🆗 = Playback supported but other features may be incomplete
-
-Vorbis playback is supported but some features like seeing duration of sound are not working yet.
+✅ = Supported ❌ = Not supported  
+More codecs are going to be supported through ffmpeg convertion.
 
 ## Mic injection
 To inject the audio into your mic to play it in any voice application you need to use something like:  
