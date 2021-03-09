@@ -24,6 +24,16 @@
 ✅ = Supported ❌ = Not supported  
 More codecs are going to be supported through ffmpeg conversion.
 
+## 1.0 Roadmap
+| Feature         | Completed |
+| --------------- |:------:|
+| Play hotkey support    | ❌ |
+| Pause hotkey support   | ❌ |
+| Stop hotkey support    | ❌ |
+| youtube-dl integration | ❌ |
+| ffmpeg auto conversion | ❌ |
+| Seeking in clip        | ❌ |
+
 ## Mic injection
 To inject the audio into your mic to play it in any voice application you need to use something like:  
 https://vb-audio.com/Cable/   
