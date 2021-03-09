@@ -1,8 +1,8 @@
 //#![windows_subsystem = "windows"]
+#![feature(panic_info_message)]
 
 use directories::*;
 use ez_audio::*;
-use nfd::Response;
 use single_instance::SingleInstance;
 use std::panic;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -18,14 +18,19 @@ use serialization::*;
 #[tokio::main]
 async fn main() {
     panic::set_hook(Box::new(|panic_info| {
-        if let Some(s) = panic_info.payload().downcast_ref::<&str>() {
+        println!("{:?}", panic_info);
+        if let Some(message) = panic_info.message() {
             let _ = msgbox::create(
                 "Error",
-                &format!("panic occurred: {:?}", s),
+                &format!("panic occurred: {:?}", message),
                 msgbox::IconType::Error,
             );
         } else {
-            let _ = msgbox::create("Error", "panic occurred", msgbox::IconType::Error);
+            let _ = msgbox::create(
+                "Error",
+                &format!("panic occurred: {:?}", panic_info.message()),
+                msgbox::IconType::Error,
+            );
         }
     }));
 
@@ -78,7 +83,7 @@ async fn main() {
 
                     tokio::spawn(async move {
                         if !local_browsing.swap(true, Ordering::Relaxed) {
-                            if let Ok(Response::OkayMultiple(files)) = nfd::dialog_multiple().open() {
+                            if let Some(files) = tinyfiledialogs::open_file_dialog_multi("Select audio files", "", None) {
                                 let mut guard = local_player.write().unwrap();
                                 for file in files {
                                     guard.load_sound(
@@ -100,11 +105,12 @@ async fn main() {
                 }
                 "play_pause" => {
                     let index: usize = args[1].parse().unwrap();
-                    if player.read().unwrap().is_playing(index) {
-                        player.read().unwrap().stop(index);
+                    let guard = player.read().unwrap();
+                    if guard.is_playing(index) {
+                        guard.stop(index);
                         webview.eval(&format!(r#"set_icon({}, "play-icon")"#, index));
                     } else {
-                        player.read().unwrap().play(index);
+                        guard.play(index);
                         webview.eval(&format!(r#"set_icon({}, "pause-icon")"#, index));
                     }
                 }
@@ -130,9 +136,11 @@ async fn main() {
                 "select_primary" => {
                     let index: usize = args[1].parse().unwrap();
                     let devices = &*devices.read().unwrap();
-                    player.read().unwrap().set_primary_device(&devices[index]);
+
+                    let guard = player.read().unwrap();
+                    guard.set_primary_device(&devices[index]);
                     primary_device_index = index;
-                    player.read().unwrap().stop_all();
+                    guard.stop_all();
 
                     let mut lock = webview.user_data().as_ref().unwrap().lock().unwrap();
                     lock.config.device.0 = index;
@@ -141,9 +149,11 @@ async fn main() {
                 "select_secondary" => {
                     let index: usize = args[1].parse().unwrap();
                     let devices = &*devices.read().unwrap();
-                    player.read().unwrap().set_secondary_device(&devices[index]);
+
+                    let guard = player.read().unwrap();
+                    guard.set_secondary_device(&devices[index]);
                     secondary_device_index = index;
-                    player.read().unwrap().stop_all();
+                    guard.stop_all();
 
                     let mut lock = webview.user_data().as_ref().unwrap().lock().unwrap();
                     lock.config.device.1 = index;
@@ -152,6 +162,7 @@ async fn main() {
                 "set_volume" => {
                     let volume_primary: f32 = args[1].parse().unwrap();
                     let volume_secondary: f32 = args[2].parse().unwrap();
+
                     player.read().unwrap().set_volume(volume_primary, volume_secondary);
 
                     let mut lock = webview.user_data().as_ref().unwrap().lock().unwrap();
@@ -164,6 +175,10 @@ async fn main() {
                         .document_dir()
                         .expect("unable to find document directory")
                         .to_path_buf();
+                    path.push("Harmony");
+                    if !path.is_dir() {
+                        std::fs::create_dir(&path).expect("unable to create config directory");
+                    }
                     path.push("harmony.ron");
                     let de = Deserializer::load(&path);
                     *webview.user_data_mut() = Some(Arc::new(Mutex::new(Serializer::new(
@@ -180,16 +195,17 @@ async fn main() {
                         de.config.device.0, de.config.device.1
                     ));
 
+                    let mut guard = player.write().unwrap();
                     {
                         let devices = &*devices.read().unwrap();
-                        player.read().unwrap().set_primary_device(&devices[de.config.device.0]);
+                        guard.set_primary_device(&devices[de.config.device.0]);
                         primary_device_index = de.config.device.0;
-                        player.read().unwrap().set_secondary_device(&devices[de.config.device.1]);
+                        guard.set_secondary_device(&devices[de.config.device.1]);
                         secondary_device_index = de.config.device.1;
                     }
 
                     for clip in de.config.clips.iter() {
-                        player.write().unwrap().load_sound(
+                        guard.load_sound(
                             &clip.path,
                             webview.handle(),
                             context.clone(),
