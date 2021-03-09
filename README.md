@@ -22,7 +22,7 @@
 | Vorbis        | ✅ | ❌ |
 
 ✅ = Supported ❌ = Not supported  
-More codecs are going to be supported through ffmpeg convertion.
+More codecs are going to be supported through ffmpeg conversion.
 
 ## Mic injection
 To inject the audio into your mic to play it in any voice application you need to use something like:  
