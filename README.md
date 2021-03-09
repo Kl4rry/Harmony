@@ -21,7 +21,6 @@
 | FLAC          | ✅ | ✅ |
 | Vorbis        | ✅ | ❌ |
 
-✅ = Supported ❌ = Not supported  
 More codecs are going to be supported through ffmpeg conversion.
 
 ## 1.0 Roadmap
