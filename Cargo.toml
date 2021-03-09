@@ -19,6 +19,7 @@ serde = { version = "*", features = ["derive"] }
 ron = "*"
 single-instance = "0.1.2"
 msgbox = "0.6.0"
+futures = "*"
 
 [build-dependencies]
 base64 = "0.13.0"
