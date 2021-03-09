@@ -38,9 +38,9 @@ async fn main() {
         .await
         .unwrap();
 
-    let mut player = Player::new();
+    let player = Arc::new(RwLock::new(Player::new()));
 
-    let browsing = AtomicBool::new(false);
+    let browsing = Arc::new(AtomicBool::new(false));
 
     let devices: Arc<RwLock<Vec<Device>>> =
         Arc::new(RwLock::new(vec![default_output_device(context.clone())]));
@@ -70,42 +70,47 @@ async fn main() {
                     webview.exit();
                 }
                 "browse" => {
-                    if !browsing.swap(true, Ordering::Relaxed) {
-                        if let Ok(Response::OkayMultiple(files)) = nfd::dialog_multiple().open() {
-                            for file in files {
-                                webview.eval(&format!(r#"load(String.raw`{}`)"#, file));
+                    let local_handle = webview.handle();
+                    let local_browsing = browsing.clone();
+                    let local_context = context.clone();
+                    let local_devices = devices.clone();
+                    let local_player = player.clone();
+
+                    tokio::spawn(async move {
+                        if !local_browsing.swap(true, Ordering::Relaxed) {
+                            if let Ok(Response::OkayMultiple(files)) = nfd::dialog_multiple().open() {
+                                let mut guard = local_player.write().unwrap();
+                                for file in files {
+                                    guard.load_sound(
+                                        &file,
+                                        local_handle.clone(),
+                                        local_context.clone(),
+                                        local_devices.clone(),
+                                        (primary_device_index, secondary_device_index),
+                                    );
+                                }
                             }
+                            local_browsing.store(false, Ordering::Relaxed);
                         }
-                        browsing.store(false, Ordering::Relaxed);
-                    }
-                }
-                "load" => {
-                    let file = &args[1..args.len()].join(" ");
-                    player.load_sound(
-                        &file,
-                        webview.handle(),
-                        context.clone(),
-                        devices.clone(),
-                        (primary_device_index, secondary_device_index),
-                    );
+                    });
                 }
                 "remove" => {
                     let index: usize = args[1].parse().unwrap();
-                    player.remove(index, webview.user_data().as_ref().unwrap().clone());
+                    player.write().unwrap().remove(index, webview.user_data().as_ref().unwrap().clone());
                 }
                 "play_pause" => {
                     let index: usize = args[1].parse().unwrap();
-                    if player.is_playing(index) {
-                        player.stop(index);
+                    if player.read().unwrap().is_playing(index) {
+                        player.read().unwrap().stop(index);
                         webview.eval(&format!(r#"set_icon({}, "play-icon")"#, index));
                     } else {
-                        player.play(index);
+                        player.read().unwrap().play(index);
                         webview.eval(&format!(r#"set_icon({}, "pause-icon")"#, index));
                     }
                 }
                 "restart" => {
                     let index: usize = args[1].parse().unwrap();
-                    player.restart(index);
+                    player.read().unwrap().restart(index);
                     webview.eval(&format!(r#"set_icon({}, "pause-icon")"#, index));
                 }
                 "update_device_list" => {
@@ -125,9 +130,9 @@ async fn main() {
                 "select_primary" => {
                     let index: usize = args[1].parse().unwrap();
                     let devices = &*devices.read().unwrap();
-                    player.set_primary_device(&devices[index]);
+                    player.read().unwrap().set_primary_device(&devices[index]);
                     primary_device_index = index;
-                    player.stop_all();
+                    player.read().unwrap().stop_all();
 
                     let mut lock = webview.user_data().as_ref().unwrap().lock().unwrap();
                     lock.config.device.0 = index;
@@ -136,9 +141,9 @@ async fn main() {
                 "select_secondary" => {
                     let index: usize = args[1].parse().unwrap();
                     let devices = &*devices.read().unwrap();
-                    player.set_secondary_device(&devices[index]);
+                    player.read().unwrap().set_secondary_device(&devices[index]);
                     secondary_device_index = index;
-                    player.stop_all();
+                    player.read().unwrap().stop_all();
 
                     let mut lock = webview.user_data().as_ref().unwrap().lock().unwrap();
                     lock.config.device.1 = index;
@@ -147,7 +152,7 @@ async fn main() {
                 "set_volume" => {
                     let volume_primary: f32 = args[1].parse().unwrap();
                     let volume_secondary: f32 = args[2].parse().unwrap();
-                    player.set_volume(volume_primary, volume_secondary);
+                    player.read().unwrap().set_volume(volume_primary, volume_secondary);
 
                     let mut lock = webview.user_data().as_ref().unwrap().lock().unwrap();
                     lock.config.volume = (volume_primary, volume_secondary);
@@ -177,14 +182,14 @@ async fn main() {
 
                     {
                         let devices = &*devices.read().unwrap();
-                        player.set_primary_device(&devices[de.config.device.0]);
+                        player.read().unwrap().set_primary_device(&devices[de.config.device.0]);
                         primary_device_index = de.config.device.0;
-                        player.set_secondary_device(&devices[de.config.device.1]);
+                        player.read().unwrap().set_secondary_device(&devices[de.config.device.1]);
                         secondary_device_index = de.config.device.1;
                     }
 
                     for clip in de.config.clips.iter() {
-                        player.load_sound(
+                        player.write().unwrap().load_sound(
                             &clip.path,
                             webview.handle(),
                             context.clone(),
@@ -201,5 +206,6 @@ async fn main() {
         .unwrap();
 
     let _ = window.run();
-    player.stop_all();
+
+    player.read().unwrap().stop_all();
 }

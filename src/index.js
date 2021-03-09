@@ -52,10 +52,6 @@ function dragend(ev) {
     document.body.style.cursor = null;
 }
 
-async function load(string) {
-    external.invoke(`load ${string}`);
-}
-
 function browse() {
     close_all_menus();
     external.invoke("browse");

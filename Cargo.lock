@@ -743,7 +743,6 @@ dependencies = [
  "base64",
  "directories",
  "ez_audio",
- "futures",
  "html-minifier",
  "msgbox",
  "nfd",
