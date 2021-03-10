@@ -83,7 +83,11 @@ async fn main() {
 
                     tokio::spawn(async move {
                         if !local_browsing.swap(true, Ordering::Relaxed) {
-                            if let Some(files) = tinyfiledialogs::open_file_dialog_multi("Select audio files", "", None) {
+                            if let Some(files) = tinyfiledialogs::open_file_dialog_multi(
+                                "Select audio files",
+                                "",
+                                Some((&["*.wav", "*.mp3", "*.flac", "*.ogg"], r#"*.wav, *.mp3", *.flac, *.ogg"#)),
+                            ) {
                                 let mut guard = local_player.write().unwrap();
                                 for file in files {
                                     guard.load_sound(
@@ -101,7 +105,10 @@ async fn main() {
                 }
                 "remove" => {
                     let index: usize = args[1].parse().unwrap();
-                    player.write().unwrap().remove(index, webview.user_data().as_ref().unwrap().clone());
+                    player
+                        .write()
+                        .unwrap()
+                        .remove(index, webview.user_data().as_ref().unwrap().clone());
                 }
                 "play_pause" => {
                     let index: usize = args[1].parse().unwrap();
@@ -163,7 +170,10 @@ async fn main() {
                     let volume_primary: f32 = args[1].parse().unwrap();
                     let volume_secondary: f32 = args[2].parse().unwrap();
 
-                    player.read().unwrap().set_volume(volume_primary, volume_secondary);
+                    player
+                        .read()
+                        .unwrap()
+                        .set_volume(volume_primary, volume_secondary);
 
                     let mut lock = webview.user_data().as_ref().unwrap().lock().unwrap();
                     lock.config.volume = (volume_primary, volume_secondary);

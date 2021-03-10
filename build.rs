@@ -48,7 +48,7 @@ fn main() {
         let mut res = WindowsResource::new();
         res.set_language(winapi::um::winnt::MAKELANGID(
             winapi::um::winnt::LANG_ENGLISH,
-            winapi::um::winnt::SUBLANG_ENGLISH_US
+            winapi::um::winnt::SUBLANG_ENGLISH_US,
         ));
         res.set_icon("icon.ico");
         res.compile().unwrap();
