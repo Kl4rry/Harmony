@@ -180,49 +180,62 @@ async fn main() {
                     lock.save();
                 }
                 "ready" => {
-                    let user_dirs = UserDirs::new().expect("unable to find user directory");
-                    let mut path = user_dirs
-                        .document_dir()
-                        .expect("unable to find document directory")
-                        .to_path_buf();
-                    path.push("Harmony");
-                    if !path.is_dir() {
-                        std::fs::create_dir(&path).expect("unable to create config directory");
-                    }
-                    path.push("harmony.ron");
-                    let de = Deserializer::load(&path);
-                    *webview.user_data_mut() = Some(Arc::new(Mutex::new(Serializer::new(
-                        &path,
-                        de.config.volume,
-                        de.config.device,
-                    ))));
-                    webview.eval(&format!(
-                        "update_volume({},{});",
-                        de.config.volume.1, de.config.volume.0
-                    ));
-                    webview.eval(&format!(
-                        "update_device({},{});",
-                        de.config.device.0, de.config.device.1
-                    ));
+                    let local_handle = webview.handle();
+                    let local_context = context.clone();
+                    let local_devices = devices.clone();
+                    let local_player = player.clone();
 
-                    let mut guard = player.write().unwrap();
-                    {
-                        let devices = &*devices.read().unwrap();
-                        guard.set_primary_device(&devices[de.config.device.0]);
-                        primary_device_index = de.config.device.0;
-                        guard.set_secondary_device(&devices[de.config.device.1]);
-                        secondary_device_index = de.config.device.1;
-                    }
+                    tokio::spawn(async move {
+                        let user_dirs = UserDirs::new().expect("unable to find user directory");
+                        let mut path = user_dirs
+                            .document_dir()
+                            .expect("unable to find document directory")
+                            .to_path_buf();
+                        path.push("Harmony");
+                        if !path.is_dir() {
+                            std::fs::create_dir(&path).expect("unable to create config directory");
+                        }
+                        path.push("harmony.ron");
 
-                    for clip in de.config.clips.iter() {
-                        guard.load_sound(
-                            &clip.path,
-                            webview.handle(),
-                            context.clone(),
-                            devices.clone(),
-                            (primary_device_index, secondary_device_index),
-                        );
-                    }
+                        local_handle.dispatch(move |webview| {
+                            let de = Deserializer::load(&path);
+                            *webview.user_data_mut() = Some(Arc::new(Mutex::new(Serializer::new(
+                                &path,
+                                de.config.volume,
+                                de.config.device,
+                            ))));
+
+                            webview.eval(&format!(
+                                "update_volume({},{});",
+                                de.config.volume.1, de.config.volume.0
+                            ));
+                            webview.eval(&format!(
+                                "update_device({},{});",
+                                de.config.device.0, de.config.device.1
+                            ));
+
+                            let mut player_guard = local_player.write().unwrap();
+                            {
+                                let devices_guard = &*local_devices.read().unwrap();
+                                player_guard.set_primary_device(&devices_guard[de.config.device.0]);
+                                primary_device_index = de.config.device.0;
+                                player_guard.set_secondary_device(&devices_guard[de.config.device.1]);
+                                secondary_device_index = de.config.device.1;
+                            }
+
+                            for clip in de.config.clips.iter() {
+                                player_guard.load_sound(
+                                    &clip.path,
+                                    webview.handle(),
+                                    local_context.clone(),
+                                    local_devices.clone(),
+                                    (primary_device_index, secondary_device_index),
+                                );
+                            }
+
+                            Ok(())
+                        });
+                    });
                 }
                 _ => println!("{}", arg),
             }

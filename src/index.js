@@ -64,17 +64,17 @@ function exit() {
 //menu bar
 let menu_open = false;
 
-function onclick_file_menu(event) {
+async function onclick_file_menu(event) {
     event.stopPropagation();
     show_menu('file');
 }
 
-function onclick_edit_menu(event) {
+async function onclick_edit_menu(event) {
     event.stopPropagation();
     show_menu('edit');
 }
 
-function show_menu(name) {
+async function show_menu(name) {
     let menu = document.getElementById(`${name}-menu`);
     if(menu_open) {
         menu.style.display = "none";
@@ -87,7 +87,7 @@ function show_menu(name) {
     }
 }
 
-function mouse_over_menu(name) {
+async function mouse_over_menu(name) {
     if(menu_open) {
         close_all_menus();
         show_menu(name);
@@ -110,7 +110,7 @@ document.addEventListener('click', function(event) {
     }
 });
 
-function close_all_menus() {
+async function close_all_menus() {
     document.getElementById("file-menu").style.display = "none";
     document.getElementById("file-button").style.backgroundColor = "#21252B";
 
@@ -120,15 +120,15 @@ function close_all_menus() {
 }
 
 //sounditems
-function play_pause(button) {
+async function play_pause(button) {
     external.invoke(`play_pause ${button.parentNode.parentNode.id}`);
 }
 
-function restart(button){
+async function restart(button){
     external.invoke(`restart ${button.parentNode.parentNode.id}`);
 }
 
-function new_sound(id, name) {
+async function new_sound(id, name) {
     let div = document.createElement("div");
     div.setAttribute("class", "item");
     div.setAttribute("id", id);
@@ -144,7 +144,7 @@ function new_sound(id, name) {
     document.getElementById("grid").appendChild(div);
 }
 
-function init_sound(id, name, duration) {
+async function init_sound(id, name, duration) {
     let div = document.getElementById(id);
     let play = `<div class="button-container"><div class="item-button" onclick="play_pause(this)"><div id="play" class="play-icon"></div></div></div>`
     let restart = `<div class="button-container"><div class="item-button" onclick="restart(this)"><div class="play-icon"></div></div></div>`
@@ -152,18 +152,18 @@ function init_sound(id, name, duration) {
     div.setAttribute("init", true);
 }
 
-function set_icon(id, icon) {
+async function set_icon(id, icon) {
     let div = document.getElementById(id);
     let img = div.querySelector("#play");
     img.className = icon;
 }
 
-function on_end(id) {
+async function on_end(id) {
     set_icon(id, "play-icon");
 }
 
 //just removes the ui element
-function remove_sound_item(id) {
+async function remove_sound_item(id) {
     let div = document.getElementById(id);
     document.getElementById("grid").removeChild(div);
 }
@@ -224,7 +224,7 @@ async function select(event) {
 }
 
 //devices and volume settings
-function set_device_list(list) {
+async function set_device_list(list) {
     let inner = "";
     for(let i = 0; i<list.length; ++i){
         inner += `<option value=${i}>${list[i]}</option>`;
@@ -233,42 +233,45 @@ function set_device_list(list) {
     document.getElementById("secondary-devicelist").innerHTML = inner;
 }
 
-function select_primary(selectedIndex) {
+async function select_primary(selectedIndex) {
     external.invoke(`select_primary ${selectedIndex}`);
 }
 
-function select_secondary(selectedIndex) {
+async function select_secondary(selectedIndex) {
     external.invoke(`select_secondary ${selectedIndex}`);
 }
 
-function update_device_list() {
+async function update_device_list() {
     external.invoke("update_device_list");
 }
 
 let primary_volume = 0.5;
 let secondary_volume = 0.5;
 
-function set_primary_volume(volume) {
+async function set_primary_volume(volume) {
     secondary_volume = volume;
     external.invoke(`set_volume ${primary_volume} ${secondary_volume}`);
 }
 
-function set_secondary_volume(volume) {
+async function set_secondary_volume(volume) {
     primary_volume = volume;
     external.invoke(`set_volume ${primary_volume} ${secondary_volume}`);
 }
 
-function update_volume(primary, secondary) {
+async function update_volume(primary, secondary) {
     document.getElementById("primary-slider").value = primary;
     primary_volume = primary;
     document.getElementById("secondary-slider").value = secondary;
     secondary_volume = secondary;
 }
 
-function update_device(primary, secondary) {
+async function update_device(primary, secondary) {
     document.getElementById("primary-devicelist").value = primary;
     document.getElementById("secondary-devicelist").value = secondary;
 }
 
 update_device_list();
-external.invoke("ready");
+
+async function on_ready() {
+    external.invoke("ready");
+}
