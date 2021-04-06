@@ -8,9 +8,7 @@ edition = "2018"
 
 [dependencies]
 web-view = { git = "https://github.com/Boscop/web-view", features = ["edge"] }
-#web-view = { path = "C:/Users/Axel/projects/web-view", features = ["edge"] }
-ez_audio = { path = "C:/Users/Axel/projects/ez-audio" }
-#ez-audio = { git = "https://github.com/Kl4rry/ez-audio" }
+ez-audio = { git = "https://github.com/Kl4rry/ez-audio" }
 tokio = { version = "1.2.0", features = ["full"] }
 rdev = "0.4.6"
 directories = "3.0.1"
