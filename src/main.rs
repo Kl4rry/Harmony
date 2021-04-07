@@ -1,5 +1,8 @@
-//#![windows_subsystem = "windows"]
 #![feature(panic_info_message)]
+#![cfg_attr(
+    not(debug_assertions),
+    windows_subsystem = "windows"
+)]
 
 use directories::*;
 use ez_audio::*;
@@ -17,6 +20,7 @@ use serialization::*;
 
 #[tokio::main]
 async fn main() {
+    println!("reeee");
     panic::set_hook(Box::new(|panic_info| {
         println!("{:?}", panic_info);
         if let Some(message) = panic_info.message() {
