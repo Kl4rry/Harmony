@@ -21,7 +21,7 @@ ez_audio = "0.1.2"
 tokio = { version = "1.2.0", features = ["full"] }
 rdev = "0.4.6"
 directories = "3.0.1"
-serde = { version = "*", features = ["derive"] }
+serde = { version = "1.0.125", features = ["derive"] }
 ron = "0.6.4"
 single-instance = "0.1.2"
 msgbox = "0.6.0"
