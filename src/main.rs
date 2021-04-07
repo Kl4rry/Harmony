@@ -1,8 +1,5 @@
 #![feature(panic_info_message)]
-#![cfg_attr(
-    not(debug_assertions),
-    windows_subsystem = "windows"
-)]
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use directories::*;
 use ez_audio::*;
@@ -89,7 +86,10 @@ async fn main() {
                             if let Some(files) = tinyfiledialogs::open_file_dialog_multi(
                                 "Select audio files",
                                 "",
-                                Some((&["*.wav", "*.mp3", "*.flac", "*.ogg"], r#"*.wav, *.mp3", *.flac, *.ogg"#)),
+                                Some((
+                                    &["*.wav", "*.mp3", "*.flac", "*.ogg"],
+                                    r#"*.wav, *.mp3", *.flac, *.ogg"#,
+                                )),
                             ) {
                                 let mut guard = local_player.write().unwrap();
                                 for file in files {
@@ -222,7 +222,8 @@ async fn main() {
                                 let devices_guard = &*local_devices.read().unwrap();
                                 player_guard.set_primary_device(&devices_guard[de.config.device.0]);
                                 //primary_device_index = de.config.device.0;
-                                player_guard.set_secondary_device(&devices_guard[de.config.device.1]);
+                                player_guard
+                                    .set_secondary_device(&devices_guard[de.config.device.1]);
                                 //secondary_device_index = de.config.device.1;
                             }
 
