@@ -39,7 +39,12 @@ https://vb-audio.com/Cable/
 https://jackaudio.org/
 
 ## Install instruction
-comming soon...
+### Cargo
+```shell
+cargo install harmony-rs
+```
+### Manual
+Either build binary from source or download it from github then place it anyware and run it. There is no configuration required.
 
 ## Building
 To build the application use cargo.  
