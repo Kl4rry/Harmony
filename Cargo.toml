@@ -5,6 +5,8 @@ authors = ["Axel Kappel <axel.e.kappel@gmail.com>"]
 edition = "2018"
 license = "Apache-2.0"
 description = "A software soundboard written in rust"
+repository = "https://github.com/Kl4rry/Harmony"
+homepage = "https://github.com/Kl4rry/Harmony"
 
 [[bin]]
 name = "harmony"
@@ -20,7 +22,7 @@ tokio = { version = "1.2.0", features = ["full"] }
 rdev = "0.4.6"
 directories = "3.0.1"
 serde = { version = "*", features = ["derive"] }
-ron = "*"
+ron = "0.6.4"
 single-instance = "0.1.2"
 msgbox = "0.6.0"
 tinyfiledialogs = "3.3.10"
