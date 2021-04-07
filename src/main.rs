@@ -20,7 +20,6 @@ use serialization::*;
 
 #[tokio::main]
 async fn main() {
-    println!("reeee");
     panic::set_hook(Box::new(|panic_info| {
         println!("{:?}", panic_info);
         if let Some(message) = panic_info.message() {
@@ -222,9 +221,9 @@ async fn main() {
                             {
                                 let devices_guard = &*local_devices.read().unwrap();
                                 player_guard.set_primary_device(&devices_guard[de.config.device.0]);
-                                primary_device_index = de.config.device.0;
+                                //primary_device_index = de.config.device.0;
                                 player_guard.set_secondary_device(&devices_guard[de.config.device.1]);
-                                secondary_device_index = de.config.device.1;
+                                //secondary_device_index = de.config.device.1;
                             }
 
                             for clip in de.config.clips.iter() {
