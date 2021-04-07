@@ -733,7 +733,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "harmony"
+name = "harmony-rs"
 version = "0.1.0"
 dependencies = [
  "base64",
