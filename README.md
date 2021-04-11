@@ -38,7 +38,7 @@ To inject the audio into your mic to play it in any voice application you need t
 https://vb-audio.com/Cable/   
 https://jackaudio.org/
 
-## Install instruction
+## Installation
 ### Cargo
 ```shell
 cargo install harmony-rs
