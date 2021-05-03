@@ -210,7 +210,7 @@ async fn main() {
 
                             webview.eval(&format!(
                                 "update_volume({},{});",
-                                de.config.volume.1, de.config.volume.0
+                                de.config.volume.0, de.config.volume.1
                             ));
                             webview.eval(&format!(
                                 "update_device({},{});",
@@ -221,10 +221,7 @@ async fn main() {
                             {
                                 let devices_guard = &*local_devices.read().unwrap();
                                 player_guard.set_primary_device(&devices_guard[de.config.device.0]);
-                                //primary_device_index = de.config.device.0;
-                                player_guard
-                                    .set_secondary_device(&devices_guard[de.config.device.1]);
-                                //secondary_device_index = de.config.device.1;
+                                player_guard.set_secondary_device(&devices_guard[de.config.device.1]);
                             }
 
                             for clip in de.config.clips.iter() {

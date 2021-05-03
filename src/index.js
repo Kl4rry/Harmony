@@ -249,12 +249,12 @@ let primary_volume = 0.5;
 let secondary_volume = 0.5;
 
 async function set_primary_volume(volume) {
-    secondary_volume = volume;
+    primary_volume = volume;
     external.invoke(`set_volume ${primary_volume} ${secondary_volume}`);
 }
 
 async function set_secondary_volume(volume) {
-    primary_volume = volume;
+    secondary_volume = volume;
     external.invoke(`set_volume ${primary_volume} ${secondary_volume}`);
 }
 
