@@ -336,9 +336,9 @@ dependencies = [
 
 [[package]]
 name = "ez_audio"
-version = "0.1.4"
+version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e5d760986d8bd1f02c94daa60bd931c5c7c9a1775f129d7eff0971500ad2f6b4"
+checksum = "6464e56b229334024a93b5e7dd206f7bddcc3a9e1e7147a7f36fec78f8e9bf4b"
 dependencies = [
  "cc",
 ]
